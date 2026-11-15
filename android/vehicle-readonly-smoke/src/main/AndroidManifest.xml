@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.hardware.type.automotive" android:required="true" />
+    <application android:label="Vehicle Read-only QA" android:allowBackup="false" android:usesCleartextTraffic="false">
+        <uses-library android:name="android.car" android:required="false" />
+        <activity android:name="io.wegoh.app.VehicleReadOnlyQaActivity" android:exported="false" />
+    </application>
+</manifest>

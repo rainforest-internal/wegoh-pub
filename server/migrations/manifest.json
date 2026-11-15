@@ -1,0 +1,474 @@
+{
+  "format": 1,
+  "targetVersion": "product_metrics_v1",
+  "states": [
+    {
+      "version": "legacy8ca",
+      "schemaFiles": {
+        "server/schema.sql": "6c695ea72d5b1f1a2735c49789b904e39006d8431a2f048da435aaddbe617e26",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "f4eaa4499644f7f8cfeb3392b4ea06be4ef87ee5e57ae048908d7a47c9b57131"
+      },
+      "catalogSha256": "fddeecf61e859c9729098696884c627c8ad53aaeb8aa0fbe8a8b0abcdbb76c3f"
+    },
+    {
+      "version": "friend_controls_v1",
+      "schemaFiles": {
+        "server/schema.sql": "6c695ea72d5b1f1a2735c49789b904e39006d8431a2f048da435aaddbe617e26",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "a4a2e152187f6978f43c9dd414f1daf08a5abcc2980a37002a859fe21fe12a6a"
+    },
+    {
+      "version": "room_archive_v1",
+      "schemaFiles": {
+        "server/schema.sql": "44db085a0fef4f95f5c3b74546262d55f53c3d74668206747faa3141d3ebe8ec",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "c790fb4562b6912ba1ade5cbb5ceeca0f5718cd91dbad193bb37bda9ab01c4c4"
+    },
+    {
+      "version": "account_handles_v1",
+      "schemaFiles": {
+        "server/schema.sql": "71efa41bfc7495083b3ef7481a0a53a4d2c16cf5fda8742a8fa45f5bb5da792b",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "abbf2b2836ff52ef56951b13f7adfd8bd6c5992cc77d9ac2dd51c6fcb37d026e"
+    },
+    {
+      "version": "room_history_saves_v1",
+      "schemaFiles": {
+        "server/schema.sql": "d6e84766924ae51e185cde2cd41d4beeea7d9f69ef23b11ec221ab8466073add",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "e76d37cbf007f7bc516dfaa2fdb0ab7f69a5b468a540093cd5c60cc94e29e008"
+    },
+    {
+      "version": "course_stars_v1",
+      "schemaFiles": {
+        "server/schema.sql": "73467e2d38fbd09771f5ed986cd6d36af2d7193fe97a609c4d8c426fe6149e21",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "0fcfe4303ef1dca14361481d5ef6b934d4e7b427982f6643d1d5695637e1da2c"
+    },
+    {
+      "version": "creator_follows_v1",
+      "schemaFiles": {
+        "server/schema.sql": "c9d04023df8a8181c061fe6a7aceecd50ffa12dd915a56d2b9d8e4a0d8d671a1",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "0dabf0aebce4603ca5e077f80e877b0f253bd211beb255a364de6a77a7f3c3e7"
+    },
+    {
+      "version": "team_trips_v6",
+      "schemaFiles": {
+        "server/schema.sql": "6946105219a131c89fb36fc442b53945cbe196b3a9b429326e42ff910aeab2bb",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "e388dc10b99dbf96bbde82e198174a339bbf45723035a39f88fc687f6c8cb6a3"
+    },
+    {
+      "version": "trip_room_merge_v1",
+      "schemaFiles": {
+        "server/schema.sql": "c21d887a5316be07376b4655b42cc1fbd125bd53aaf9d05045a02b50e49c15da",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "58e54bc43b3baca4d94b4f926d5127049a0a2a7ac7441327a4e3566fe76949ee"
+    },
+    {
+      "version": "trip_plan_v1",
+      "schemaFiles": {
+        "server/schema.sql": "d3a7543ac96a4f875afe629ec9d1a63c19e2be434422ef8b33c15ae23de40667",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "04bb81815859d366670b4aa40235ba29e07df81128e0cec6fd48b1a5a067bb5d"
+      },
+      "catalogSha256": "ed1164378cd2b2c8713cae6bfc367a92f1cbee7e84595a4f6e4c9ba6cfff80b2"
+    },
+    {
+      "version": "trip_remote_grants_v1",
+      "schemaFiles": {
+        "server/schema.sql": "d3a7543ac96a4f875afe629ec9d1a63c19e2be434422ef8b33c15ae23de40667",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "c9820f1ccade6f834ff01fd2b5bf4bf423d4f4454134308e1d384052a30d6770"
+    },
+    {
+      "version": "iphone_sessions_v1",
+      "schemaFiles": {
+        "server/schema.sql": "32b2a687bfbbb0eb18e5db33c7e296873f0d05a2af1953afe98ee9cd192aa12c",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "13fd6fa2dfd0477a3570c5d63bfb85343241f76e1e1efe6cd0ff293e3eaadcdc"
+    },
+    {
+      "version": "course_tags_v1",
+      "schemaFiles": {
+        "server/schema.sql": "e5e93ab5f559fcbeeaf88c31162dc507892d1c81751a018abeb991ad920dbd5f",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "0cfbcfdaf7a727bfd033ec27b1da257263d3585de0f7d82cc27c74c477455d34"
+    },
+    {
+      "version": "trip_course_priority_v1",
+      "schemaFiles": {
+        "server/schema.sql": "3dd1762c66a29668836843221b7dc91a74b0d93de580280577ab0615cf135ef3",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "436c48605500c9e32130e83b1da6152290dc1f88fb654d23e4b9dcb5ce2ffc02"
+    },
+    {
+      "version": "pack_course_covers_v1",
+      "schemaFiles": {
+        "server/schema.sql": "c735650920b8390d18f7330debebb80628c445b5fe4c85215b92409e9bf139ef",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "21b0af5da8a1ec7edf31bb908bb224c1129626f447d697315b4147cad3274677"
+    },
+    {
+      "version": "trip_messages_v1",
+      "schemaFiles": {
+        "server/schema.sql": "47b6fc9e0184f834c0bbb1497c559b1a79b2df41940833e6e662ebee464e47a2",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "b914b0efa926e770418d89b3421f0a4c16ef2474ae0cae062369280c88cb016a"
+    },
+    {
+      "version": "trip_course_waypoints_v1",
+      "schemaFiles": {
+        "server/schema.sql": "abfef1aca56462ddb4c0281d51c66c7333ff21c02f7f99b1f4b32ab679ea2b41",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "c7a9d7e14ecd5e4119ad5208a9ea651209e3bdded8dce7f69fe79771a6e17223"
+    },
+    {
+      "version": "trip_driving_scores_v1",
+      "schemaFiles": {
+        "server/schema.sql": "f3d5b0a957f1635ade9f5df623ffb79e63b54efa43e092ce7e6f8a32203b7121",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "749d7815df9bb21b1df47f913e1b43176051d88432c588d82cad68fc031ae991"
+    },
+    {
+      "version": "trip_route_segments_v2",
+      "schemaFiles": {
+        "server/schema.sql": "c3f3b307c2d75f9c74b1dba7a8881194437b49b219587fea1cd6eae3828037ec",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "beb3a054892eef6360004ba5c7e10d5e0dcb965f66d3d3c003987a860cf928c9"
+    },
+    {
+      "version": "trip_driving_versus_v1",
+      "schemaFiles": {
+        "server/schema.sql": "75846d7038b1ca8e858fd18192314ef8963fafb23eb300a6c349b0b870a7b1c3",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "bc02ed41d37c605509b6533a2fc5b6cb2162bbb8bd3f9fc0497c9489e0d92bdb"
+    },
+    {
+      "version": "course_discovery_v1",
+      "schemaFiles": {
+        "server/schema.sql": "ddfff768d7c822dbcacd514a38a92965529605fa2eebdf3cea08a8500b10f7ee",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "89b139095ac38d6f227b0ba50206afffb99dfe00d924f73d542dc66625b73cef"
+    },
+    {
+      "version": "trip_car_ordinals_v1",
+      "schemaFiles": {
+        "server/schema.sql": "f39faac67431c7269e35c34271749057cfa5dcdca9027390bd7b2bd689359b3c",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "ff227b57861450a2b8d21ee29e77608529daae803890cefbfffb9d2961a30f54"
+    },
+    {
+      "version": "iphone_push_v1",
+      "schemaFiles": {
+        "server/schema.sql": "4d2ba36eb351e217fc6e922f7a220e1d9646a02813e1176c725d411e37c8918e",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "954334ac2af77317350f0828122c88c71fb177c147ba19f662d413111cde21d7"
+    },
+    {
+      "version": "course_star_times_v1",
+      "schemaFiles": {
+        "server/schema.sql": "ccbe87991698bcdcd219b26be6da02452b4de8add583f19320f5120145c896dd",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "9deaaf23feef21493b882e7ab1c8a3823df2dc61bbb30fe55f2d2789b008b711"
+      },
+      "catalogSha256": "bd1b427ec82c4ad3ee6b9ba0c217bfc916788214d2fdfe5edffadef1eea233ec"
+    },
+    {
+      "version": "product_metrics_v1",
+      "schemaFiles": {
+        "server/schema.sql": "ccbe87991698bcdcd219b26be6da02452b4de8add583f19320f5120145c896dd",
+        "server/enrollment_schema.sql": "d0d2bbd4280f0c6829aec68d415598d8e8630f3cd1d0ff766b2c1717ccfb38c9",
+        "server/native_access_schema.sql": "543e30a976f17f883f267f3ad3ea691351867d02ad248b83b6a7b2ae15115449",
+        "server/native_functional_schema.sql": "ec059cd298dbe988f33606049a175cbcf17c5390d899aac59298165202a0b0ff"
+      },
+      "catalogSha256": "58f2238b9d45beb0a9300878ad72cc42222f62d872f306ebb2d4a1a5f448bbea"
+    }
+  ],
+  "migrations": [
+    {
+      "id": "friend_controls_v1",
+      "from": "legacy8ca",
+      "to": "friend_controls_v1",
+      "path": "migrations/0001_friend_controls.sql",
+      "checksum": "9f227f018384713547b6711a0d70255393c8af1ccf46574c4fd286d3ea223d77",
+      "rollbackFloor": "legacy8ca",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "room_archive_v1",
+      "from": "friend_controls_v1",
+      "to": "room_archive_v1",
+      "path": "migrations/0002_room_archive.sql",
+      "checksum": "d34973341f88c18e63a617864ffa2b5a4e350726804d3b7953a3ed21c1ce2c6d",
+      "rollbackFloor": "legacy8ca",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "account_handles_v1",
+      "from": "room_archive_v1",
+      "to": "account_handles_v1",
+      "path": "migrations/0003_account_handles.sql",
+      "checksum": "771924a81b0f1f9307fc8f26b5958223feb4cc1f799bf043c43a49e54755368c",
+      "rollbackFloor": "legacy8ca",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "room_history_saves_v1",
+      "from": "account_handles_v1",
+      "to": "room_history_saves_v1",
+      "path": "migrations/0004_room_history_saves.sql",
+      "checksum": "44a2198dd484634ffcc7b75fe491877e92a34288b4720bad4ccf9e343364d0de",
+      "rollbackFloor": "legacy8ca",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "course_stars_v1",
+      "from": "room_history_saves_v1",
+      "to": "course_stars_v1",
+      "path": "migrations/0005_course_stars.sql",
+      "checksum": "b0c4b91a037c2b45228ac942bf269ee86d5a3901aad0ad1e600d18c4417f7b4c",
+      "rollbackFloor": "legacy8ca",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "creator_follows_v1",
+      "from": "course_stars_v1",
+      "to": "creator_follows_v1",
+      "path": "migrations/0006_creator_follows.sql",
+      "checksum": "27077fd31aa75c04331ed08a6ddddb1629dbc1cb9d9bd87583bb3ba37450b705",
+      "rollbackFloor": "legacy8ca",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "team_trips_v6",
+      "from": "creator_follows_v1",
+      "to": "team_trips_v6",
+      "path": "migrations/0007_team_trips.sql",
+      "checksum": "a3be1e20dcf67c6ae8289bc7a7e9ec7aa35256eb365b37a9f55f4ec6aaa47206",
+      "rollbackFloor": "legacy8ca",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "trip_room_merge_v1",
+      "from": "team_trips_v6",
+      "to": "trip_room_merge_v1",
+      "path": "migrations/0008_trip_room_merge.sql",
+      "checksum": "b54ece3cbd4a781fcead48c5ea13ae16550655437387703ef533b05d610d8ddd",
+      "rollbackFloor": "trip_room_merge_v1",
+      "oldCodeCompatible": false
+    },
+    {
+      "id": "trip_plan_v1",
+      "to": "trip_plan_v1",
+      "path": "migrations/0009_trip_plan.sql",
+      "checksum": "cc6446726cc1990355fdd50c95a7f56545409130d7abd3e7e8f994305c84fe95",
+      "rollbackFloor": "trip_room_merge_v1",
+      "oldCodeCompatible": true,
+      "from": "trip_room_merge_v1"
+    },
+    {
+      "id": "trip_remote_grants_v1",
+      "from": "trip_plan_v1",
+      "to": "trip_remote_grants_v1",
+      "path": "migrations/0010_trip_remote_grants.sql",
+      "checksum": "fbee86cb4dc15acd9cb7e3909a5dc9bb662616bfe458abc26e765a9b965ed260",
+      "rollbackFloor": "trip_remote_grants_v1",
+      "oldCodeCompatible": false
+    },
+    {
+      "id": "iphone_sessions_v1",
+      "from": "trip_remote_grants_v1",
+      "to": "iphone_sessions_v1",
+      "path": "migrations/0011_iphone_sessions.sql",
+      "checksum": "999c54a80044bf832db25b90fdc6bf89bd72f3801793e2d0b0034735668752a3",
+      "rollbackFloor": "trip_remote_grants_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "course_tags_v1",
+      "from": "iphone_sessions_v1",
+      "to": "course_tags_v1",
+      "path": "migrations/0012_course_tags.sql",
+      "checksum": "30d31aa5b0b9fff95b053c0c34970df5dccbbcbb8876ebf0092bd165db7475f2",
+      "rollbackFloor": "trip_remote_grants_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "trip_course_priority_v1",
+      "from": "course_tags_v1",
+      "to": "trip_course_priority_v1",
+      "path": "migrations/0013_trip_course_priority.sql",
+      "checksum": "c6b7d2d9c9a089409b50973d8cb77475b490a46a72b35408af7a2cbda819cd2e",
+      "rollbackFloor": "trip_remote_grants_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "pack_course_covers_v1",
+      "from": "trip_course_priority_v1",
+      "to": "pack_course_covers_v1",
+      "path": "migrations/0016_pack_course_covers.sql",
+      "checksum": "70b829a861fda34e8f47f9b5201eba14cdbe97c0f3ae3376847cb1a9b8bc51a6",
+      "rollbackFloor": "trip_remote_grants_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "trip_messages_v1",
+      "from": "pack_course_covers_v1",
+      "to": "trip_messages_v1",
+      "path": "migrations/0017_trip_messages.sql",
+      "checksum": "f527934fa8e8707fe5a5e623c931f5799a72fcbf94655001a0db5d092355ddc2",
+      "rollbackFloor": "trip_remote_grants_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "trip_course_waypoints_v1",
+      "from": "trip_messages_v1",
+      "to": "trip_course_waypoints_v1",
+      "path": "migrations/0018_trip_course_waypoints.sql",
+      "checksum": "3ac0b38a6329febd7d6b6f08b4bba96bcb1cf031b4dcbffde4b19145ba436d19",
+      "rollbackFloor": "trip_course_waypoints_v1",
+      "oldCodeCompatible": false
+    },
+    {
+      "id": "trip_driving_scores_v1",
+      "from": "trip_course_waypoints_v1",
+      "to": "trip_driving_scores_v1",
+      "path": "migrations/0019_trip_driving_scores.sql",
+      "checksum": "8f2b413630bb5195e5b05e5e60058ed572cd9bdca61d253f6965dae66bed0046",
+      "rollbackFloor": "trip_course_waypoints_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "trip_route_segments_v2",
+      "from": "trip_driving_scores_v1",
+      "to": "trip_route_segments_v2",
+      "path": "migrations/0020_trip_route_segments.sql",
+      "checksum": "ed1441ac3a0fe6a8e1ca2b52ec81be3db58ce54ea7722a31082262d339577385",
+      "rollbackFloor": "trip_route_segments_v2",
+      "oldCodeCompatible": false
+    },
+    {
+      "id": "trip_driving_versus_v1",
+      "from": "trip_route_segments_v2",
+      "to": "trip_driving_versus_v1",
+      "path": "migrations/0021_trip_driving_versus.sql",
+      "checksum": "df33b94bdae840994704f469932270595bd13081971ae0fe7b0e317f053f5386",
+      "rollbackFloor": "trip_driving_versus_v1",
+      "oldCodeCompatible": false
+    },
+    {
+      "id": "course_discovery_v1",
+      "from": "trip_driving_versus_v1",
+      "to": "course_discovery_v1",
+      "path": "migrations/0022_course_discovery.sql",
+      "checksum": "408364c03feaf7b3e81d7ff87115b5d1a92d232c7947aea66b89e69f803cb15c",
+      "rollbackFloor": "course_discovery_v1",
+      "oldCodeCompatible": false
+    },
+    {
+      "id": "trip_car_ordinals_v1",
+      "from": "course_discovery_v1",
+      "to": "trip_car_ordinals_v1",
+      "path": "migrations/0023_trip_car_ordinals.sql",
+      "checksum": "27a8ab07dae0701855fa19e70319449165f2fda53a3b653863c9293304f6ad3a",
+      "rollbackFloor": "trip_car_ordinals_v1",
+      "oldCodeCompatible": false
+    },
+    {
+      "id": "iphone_push_v1",
+      "from": "trip_car_ordinals_v1",
+      "to": "iphone_push_v1",
+      "path": "migrations/0024_iphone_push.sql",
+      "checksum": "029645ca73e845d01d2497ad4f49f176de475b9efc33f398e41aa9306e814e65",
+      "rollbackFloor": "trip_car_ordinals_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "course_star_times_v1",
+      "from": "iphone_push_v1",
+      "to": "course_star_times_v1",
+      "path": "migrations/0025_course_star_times.sql",
+      "checksum": "87e56578bdaebb10990a0c935b203a2fc24a4ca05761015f10da6137205008fa",
+      "rollbackFloor": "trip_car_ordinals_v1",
+      "oldCodeCompatible": true
+    },
+    {
+      "id": "product_metrics_v1",
+      "from": "course_star_times_v1",
+      "to": "product_metrics_v1",
+      "path": "migrations/0026_product_metrics.sql",
+      "checksum": "0c90297ad30895bdef3493888b7398fcafb9df047e18670f359f297c5a3dc320",
+      "rollbackFloor": "trip_car_ordinals_v1",
+      "oldCodeCompatible": true
+    }
+  ]
+}

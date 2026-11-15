@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "city-story",
+  "version": 1,
+  "title": "도시의 작은 이야기",
+  "author": "WegoH",
+  "description": "도심의 두 장소를 잇는 경로",
+  "stops": [
+    {"id":"gangnam","name":"첫 번째 만남","latitude":37.4979,"longitude":127.0276,"radiusMeters":100,
+     "action":{"type":"chime","message":"첫 장소에 도착했어요"}},
+    {"id":"42dot","name":"다음 이야기","latitude":37.48544722,"longitude":127.03636666,"radiusMeters":100,
+     "poiId":"36khp37hh8gqcm5nqhe5","address":"서울시 강남구 남부순환로 2621",
+     "action":{"type":"chime","message":"두 번째 장소에 도착했어요"}}
+  ]
+}

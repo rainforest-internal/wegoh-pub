@@ -1,0 +1,94 @@
+{
+  "authorizationVersion": 1,
+  "userCode": "DEMA2345",
+  "deviceName": "코드 연동 시험 차량",
+  "state": "PENDING",
+  "expiresAt": 1999999999,
+  "requestedScopes": [
+    "account:read",
+    "account:write",
+    "courses:read",
+    "device:self:manage",
+    "playlists:read"
+  ],
+  "requiredScopes": [
+    "account:read",
+    "device:self:manage"
+  ],
+  "consentVersion": 1,
+  "keepSignedInDefault": false,
+  "currentAccountDisplayName": "시험 사용자",
+  "disclosureSnapshot": {
+    "disclosureVersion": 2,
+    "scopeDisclosures": [
+      {
+        "scope": "account:read",
+        "required": true,
+        "dataCategories": [
+          "계정 식별자",
+          "표시 이름"
+        ],
+        "purpose": "본인 확인과 현재 연결 계정 표시",
+        "retentionPolicyId": "account-read-cache-until-grant",
+        "retention": "조회 캐시는 연결 유효기간(최대7일) 안에서만 사용하고 동의 철회 시 삭제합니다. 로그아웃 시 즉시 잠급니다. 원본 계정 및 본인이 만든 콘텐츠는 별도 탈퇴와 삭제 계약을 따릅니다.",
+        "refusalEffect": "이 기기의 개인 연결을 시작하지 않습니다.",
+        "withdrawalEffect": "개인 연결을 종료하고 해당 조회 캐시를 삭제합니다."
+      },
+      {
+        "scope": "account:write",
+        "required": false,
+        "dataCategories": [
+          "직접 입력한 계정 표시 이름"
+        ],
+        "purpose": "차량에서 본인 계정 이름 변경. 웹과 연결한 다른 차량에도 반영됩니다.",
+        "retentionPolicyId": "account-name-until-change-or-account-deletion",
+        "retention": "저장한 이름은 다시 변경하거나 계정을 삭제할 때까지 보관합니다. 차량의 조회 캐시는 연결 유효기간 안에서만 사용합니다.",
+        "refusalEffect": "계정 확인과 기존 연결은 유지되며 차량에서 이름을 변경할 수 없습니다.",
+        "withdrawalEffect": "이 차량의 이름 변경 권한을 중단합니다. 이미 저장한 계정 이름을 자동으로 되돌리거나 계정을 삭제하지 않습니다."
+      },
+      {
+        "scope": "courses:read",
+        "required": false,
+        "dataCategories": [
+          "허용된 코스 정보",
+          "본인 코스 목록"
+        ],
+        "purpose": "차량에서 선택한 드라이브 코스를 확인하고 준비",
+        "retentionPolicyId": "course-read-cache-until-grant",
+        "retention": "조회 캐시는 연결 유효기간(최대7일) 안에서만 사용하고 동의 철회 시 삭제합니다. 원본 코스와 미업로드 주행 기록은 각각의 별도 보관 및 삭제 계약을 따르며 이 조회 동의로 재귀속하지 않습니다.",
+        "refusalEffect": "차량에서 코스 목록과 코스 데이터를 조회하지 않습니다.",
+        "withdrawalEffect": "코스 조회와 관련 알림을 중단하고 해당 조회 캐시를 삭제합니다."
+      },
+      {
+        "scope": "device:self:manage",
+        "required": true,
+        "dataCategories": [
+          "현재 기기 연결 식별자",
+          "동의 범위",
+          "연결 기한과 해제 상태"
+        ],
+        "purpose": "현재 기기 연결 확인과 해제",
+        "retentionPolicyId": "self-device-until-grant",
+        "retention": "연결 관리 정보는 원 연결 유효기간까지 사용합니다. 철회 시 개인 식별 및 조회 정보는 목적별로 제거하고 재생 차단에 필요한 비식별 해시만 원 유효기간까지 보관합니다. 사용자 여행 기록을 삭제하는 계약이 아닙니다.",
+        "refusalEffect": "이 기기의 개인 연결을 시작하지 않습니다.",
+        "withdrawalEffect": "개인 연결을 종료하며 다른 기기나 차량을 제어하지 않습니다."
+      },
+      {
+        "scope": "playlists:read",
+        "required": false,
+        "dataCategories": [
+          "본인 음악 목록 제목",
+          "트랙 제목과 링크"
+        ],
+        "purpose": "차량에서 미리 준비한 음악 목록 확인",
+        "retentionPolicyId": "playlist-read-cache-until-grant",
+        "retention": "조회 캐시는 연결 유효기간(최대7일) 안에서만 사용하고 동의 철회 시 삭제합니다. 본인이 만든 원본 음악 목록은 별도 삭제 요청을 따릅니다.",
+        "refusalEffect": "차량에서 음악 목록 데이터를 조회하지 않습니다.",
+        "withdrawalEffect": "음악 목록 조회와 관련 알림을 중단하고 해당 조회 캐시를 삭제합니다."
+      }
+    ],
+    "bindingMaxSeconds": 604800,
+    "keepSignedInDisclosure": "기본은 임시 연결로, 앱을 다시 실행하면 잠깁니다. 로그인 유지 시 이 차량의 같은 사용자 프로필에서 다른 사람도 내 계정을 이용할 수 있습니다. 최대 7일 후에는 다시 연결하며, 언제든 연결을 해제할 수 있습니다.",
+    "disclosureSha256": "c8b6a8c925c8c3464af123c5869e8dc9bb0fa1d9a522889c315623b5e7e6a735"
+  }
+}

@@ -1,0 +1,7 @@
+<resources>
+    <style name="WegoHWindowTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/wegoh_window_background</item>
+        <item name="android:colorBackground">@color/wegoh_window_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

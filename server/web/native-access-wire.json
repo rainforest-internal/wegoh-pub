@@ -1,0 +1,3490 @@
+{
+  "schemaVersion": 1,
+  "status": "current",
+  "contracts": [
+    "docs/native-access-contracts.md",
+    "docs/native-device-account-contract.md"
+  ],
+  "origins": {
+    "enroll": "https://enroll-wegoh.devforest.io",
+    "native": "https://api-wegoh.devforest.io",
+    "web": "https://wegoh.devforest.io"
+  },
+  "types": {
+    "Id": "exact 32 lowercase hex; independently random 128 bits for each new operation/connection/grant/device",
+    "InstallationKeyId": "64 lowercase hex SHA256 of DER SubjectPublicKeyInfo",
+    "CertificateSha256": "64 lowercase hex SHA256 leaf DER",
+    "Secret": "canonical unpadded base64url of 32 random bytes; 43 characters; server retains hash or encrypted receipt only",
+    "PkceVerifier": "RFC7636 unreserved ASCII 43..128; S256 only; reuse enrollment_crypto.challenge",
+    "Timestamp": "integer Unix UTC seconds 0..253402300799; booleans/floats/coercion forbidden",
+    "Counter": "integer 0..9007199254740991; booleans/floats forbidden",
+    "UserCode": "8 ASCII [A-HJ-NP-Z2-9]; public comparison code, not a credential",
+    "DeviceName": "1..80 Unicode scalar values and <=240 UTF8 bytes; reject C0/C1/surrogates and leading/trailing whitespace; exact value not normalized",
+    "ScopeSet": "nonempty sorted unique array of exact known ASCII scopes; mandatory scopes required for approval; no unknown/duplicates",
+    "Version": "literal JSON integer 1; all other public authorization versions rejected",
+    "ServerNonce": "canonical unpadded base64url32 random bytes (43chars); persisted per connection, reissued for new operation only when explicit type says so",
+    "PollInterval": "integer5..60; bool/float forbidden",
+    "RetryAfter": "integer5..86400; bool/float forbidden",
+    "Generation": "integer1..2147483647",
+    "ConsentVersion": "integer>=1 <=2147483647; increment on purpose scope/retention agreement change, never codec version",
+    "Epoch": "integer1..9007199254740991; credentialEpoch and slotRevision are independent counters",
+    "AuthorizationOperation": "literal value of matching operations[].action, never client-selected route execution",
+    "CredentialKind": "literal Bearer",
+    "KeepSignedIn": "JSON bool; initial false; only phone owner may consent true",
+    "AccountId": "exact team- plus40 lowercase hex; existing access_identity.py:86/account response model, not random32hex Id",
+    "S25643": "canonical unpadded base64url32-byte SHA256,43chars",
+    "SingleValidatedPem": "single ASCII PEM <=8192bytes; CSR uses existing validate_csr; leaf receipt validates SPKI/SHA/EKU/KU/validity/provenance, no fabricated chain",
+    "State": "literal states[] member constrained by operation response variant",
+    "Disposition": "literal dispositions[] member constrained by variant",
+    "FixedPhoneUri": "exact phone.current template replacing public code only; no credentials/redirect/scheme/port freedom",
+    "ApprovedScopeSet": "sorted unique subset of requested scopes, possibly empty; missing required causes DENIED",
+    "RequiredScopes": "exact sorted mandatory2 array",
+    "RSA2048Signature342": "canonical unpadded base64url256-byte RSA signature exactly342chars; existing verify_proof",
+    "DisclosureSnapshot": "closed disclosureRegistry.schema; immutable server-snapshot subset matching requested scopes and purpose versions"
+  },
+  "scopes": {
+    "mandatory": [
+      "account:read",
+      "device:self:manage"
+    ],
+    "optional": [
+      "account:write",
+      "courses:read",
+      "playlists:read"
+    ]
+  },
+  "operations": [
+    {
+      "action": "CONNECTION_BEGIN",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/connections",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "name",
+        "csrPem",
+        "codeChallenge",
+        "requestedScopes",
+        "revokeCommitment"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 201,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ]
+    },
+    {
+      "action": "CONNECTION_RECOVER",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/connections/recover",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "csrPem",
+        "originalBeginHash",
+        "codeVerifier",
+        "proof",
+        "proofNonce"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "fixedRequestValues": {
+        "proofNonce": "begin-recovery"
+      },
+      "responseVariants": [
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "APPROVED",
+          "disposition": "CONTINUE_CLAIM",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUING",
+          "disposition": "RECONCILE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "proofNonce": "ServerNonce",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "UNCERTAIN",
+          "disposition": "RECONCILE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "proofNonce": "ServerNonce",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "EXPIRED_NOT_ISSUED",
+          "disposition": "USER_RESTART_ALLOWED",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "proofNonce": "ServerNonce",
+            "restartTicket": "Secret",
+            "restartExpiresAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "APPROVED",
+          "disposition": "EXCHANGE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "grantId": "Id",
+            "proofNonce": "ServerNonce",
+            "exchangeExpiresAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "DENIED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "REVOKED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUED",
+          "disposition": "EXCHANGE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "certificateReceipt": "certificateReceipt",
+            "grantId": "Id",
+            "proofNonce": "ServerNonce",
+            "exchangeExpiresAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUED",
+          "disposition": "REAUTHORIZE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "certificateReceipt": "certificateReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUED",
+          "disposition": "CERTIFICATE_RECEIPT",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "certificateReceipt": "certificateReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ]
+    },
+    {
+      "action": "CONNECTION_CLAIM",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/connections/{connectionId}/claim",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "codeVerifier",
+        "proofNonce",
+        "proof"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "responseVariants": [
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 202,
+          "required": {
+            "connectionId": "Id",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUING",
+          "disposition": "RECONCILE",
+          "httpStatus": 202,
+          "required": {
+            "connectionId": "Id",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "UNCERTAIN",
+          "disposition": "RECONCILE",
+          "httpStatus": 202,
+          "required": {
+            "connectionId": "Id",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUED",
+          "disposition": "EXCHANGE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "certificateReceipt": "certificateReceipt",
+            "grantId": "Id",
+            "proofNonce": "ServerNonce",
+            "exchangeExpiresAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUED",
+          "disposition": "REAUTHORIZE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "certificateReceipt": "certificateReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ]
+    },
+    {
+      "action": "CONNECTION_CANCEL",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/connections/cancel",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "codeVerifier",
+        "proofNonce",
+        "proof"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "fixedRequestValues": {
+        "proofNonce": "connection-cancel"
+      },
+      "responseVariants": [
+        {
+          "state": "EXPIRED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "authorization": "Same installation key RSA proof over the original begin/authorize operationId plus its PKCE verifier; ends only that unclaimed code now (phone/vehicle then get 410). Another key, verifier or operation cannot end it. ISSUING/UNCERTAIN/ISSUED codes are not cancellable (409); a claimed or exchanged grant is closed by GRANT_REVOKE/SESSION_REVOKE instead."
+    },
+    {
+      "action": "CONNECTION_RESTART",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/connections",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "name",
+        "csrPem",
+        "codeChallenge",
+        "requestedScopes",
+        "previousConnectionId",
+        "restartTicket",
+        "oldCodeVerifier",
+        "proofNonce",
+        "proof",
+        "revokeCommitment"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "responseVariants": [
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 201,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ]
+    },
+    {
+      "action": "ACCOUNT_AUTHORIZE",
+      "host": "native",
+      "method": "POST",
+      "path": "/v1/device-authorizations",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "name",
+        "certificatePem",
+        "codeChallenge",
+        "requestedScopes",
+        "revokeCommitment"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 201,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "APPROVED",
+          "disposition": "EXCHANGE",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "grantId": "Id",
+            "exchangeExpiresAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "DENIED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "transportKeyProof": "actual mTLS/current certified installation binding; NEVER cert possession inferred from untrusted PEM/header alone",
+      "authorization": "current mTLS cert+exact DER/SPKI body binding; new explicit phone approval+PKCE required for personal access",
+      "idempotency": "mTLS installation+operationId+exact original canonical body snapshot; replay gets original public code or current approval disposition, never creates another grant/CF cert. Code expiry returns410; fresh user action required."
+    },
+    {
+      "action": "SESSION_EXCHANGE",
+      "host": "native",
+      "method": "POST",
+      "path": "/v1/device-sessions/exchange",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "grantId",
+        "codeVerifier"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "TOKEN_ISSUED",
+          "disposition": "CREDENTIAL_RECEIPT",
+          "httpStatus": 200,
+          "required": {
+            "credentialReceipt": "credentialReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "transportKeyProof": "actual mTLS/current certified installation binding; NEVER cert possession inferred from untrusted PEM/header alone",
+      "authorization": "actual mTLS+original grant PKCE verifier, still-live approval, consent snapshot and slot"
+    },
+    {
+      "action": "SESSION_RECOVER",
+      "host": "native",
+      "method": "POST",
+      "path": "/v1/device-sessions/recover",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "grantId",
+        "deviceId",
+        "recoveryCapability"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "TOKEN_ISSUED",
+          "disposition": "CREDENTIAL_RECEIPT",
+          "httpStatus": 200,
+          "required": {
+            "credentialReceipt": "credentialReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "transportKeyProof": "actual mTLS/current certified installation binding; NEVER cert possession inferred from untrusted PEM/header alone",
+      "authorization": "actual mTLS+same-grant purpose recovery capability+live grant/current slot/epoch"
+    },
+    {
+      "action": "SESSION_REFRESH",
+      "host": "native",
+      "method": "POST",
+      "path": "/v1/device-sessions/refresh",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "grantId",
+        "deviceId",
+        "refreshToken"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "TOKEN_ISSUED",
+          "disposition": "CREDENTIAL_RECEIPT",
+          "httpStatus": 200,
+          "required": {
+            "credentialReceipt": "credentialReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "transportKeyProof": "actual mTLS/current certified installation binding; NEVER cert possession inferred from untrusted PEM/header alone",
+      "authorization": "actual mTLS+current one-use refresh credential/idempotency operation"
+    },
+    {
+      "action": "SESSION_REVOKE",
+      "host": "native",
+      "method": "POST",
+      "path": "/v1/device-sessions/{deviceId}/revoke",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "grantId",
+        "revokeCapability"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "REVOKED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "deviceId": "Id",
+            "revokedAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "REVOKED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "deviceId": "Id",
+            "expiredAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "transportKeyProof": "actual mTLS/current certified installation binding; NEVER cert possession inferred from untrusted PEM/header alone",
+      "authorization": "actual mTLS verified same installation key+bound revoke-only capability; terminal repeated calls idempotent; no private grant reactivation"
+    },
+    {
+      "action": "CERTIFICATE_RECOVER",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/installations/certificate-recover",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "installationKeyId",
+        "generationOperationId",
+        "expectedGeneration",
+        "codeVerifier",
+        "proofNonce",
+        "proof"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "responseVariants": [
+        {
+          "state": "ISSUED",
+          "disposition": "CERTIFICATE_RECEIPT",
+          "httpStatus": 200,
+          "required": {
+            "certificateReceipt": "certificateReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ]
+    },
+    {
+      "action": "CERTIFICATE_RENEW_BEGIN",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/installations/certificate-renew",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "csrPem",
+        "installationKeyId",
+        "grantId",
+        "deviceId",
+        "recoveryCapability",
+        "expectedGeneration",
+        "codeChallenge",
+        "proofNonce",
+        "proof"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "responseVariants": [
+        {
+          "state": "APPROVED",
+          "disposition": "CONTINUE_CLAIM",
+          "httpStatus": 201,
+          "required": {
+            "connectionId": "Id",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "APPROVED",
+          "disposition": "CONTINUE_CLAIM",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "fixedRequestValues": {
+        "proofNonce": "certificate-renewal"
+      }
+    },
+    {
+      "action": "CERTIFICATE_RENEW_CLAIM",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/connections/{connectionId}/claim",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "codeVerifier",
+        "proofNonce",
+        "proof"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "responseVariants": [
+        {
+          "state": "ISSUING",
+          "disposition": "RECONCILE",
+          "httpStatus": 202,
+          "required": {
+            "connectionId": "Id",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "UNCERTAIN",
+          "disposition": "RECONCILE",
+          "httpStatus": 202,
+          "required": {
+            "connectionId": "Id",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "ISSUED",
+          "disposition": "CERTIFICATE_RECEIPT",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "certificateReceipt": "certificateReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ]
+    },
+    {
+      "action": "CREDENTIAL_REBIND",
+      "host": "native",
+      "method": "POST",
+      "path": "/v1/device-sessions/rebind",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "connectionId",
+        "grantId",
+        "deviceId",
+        "recoveryCapability"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "TOKEN_ISSUED",
+          "disposition": "CREDENTIAL_RECEIPT",
+          "httpStatus": 200,
+          "required": {
+            "credentialReceipt": "credentialReceipt"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ]
+    },
+    {
+      "action": "CONNECTION_REAUTHORIZE",
+      "host": "enroll",
+      "method": "POST",
+      "path": "/v1/connections",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "name",
+        "csrPem",
+        "codeChallenge",
+        "requestedScopes",
+        "installationKeyId",
+        "expectedGeneration",
+        "proofNonce",
+        "proof",
+        "revokeCommitment"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": true,
+      "responseVariants": [
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 201,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "PENDING",
+          "disposition": "WAIT",
+          "httpStatus": 200,
+          "required": {
+            "connectionId": "Id",
+            "userCode": "UserCode",
+            "verificationUri": "FixedPhoneUri",
+            "proofNonce": "ServerNonce",
+            "expiresAt": "Timestamp",
+            "interval": "PollInterval"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "fixedRequestValues": {
+        "proofNonce": "account-reauthorization"
+      },
+      "authorization": "Same persisted installation RSA proof over exact new CSR/key/generation/name/scopes/PKCE/op/fullbody. Current public certificate must be expired (not revoked/unknown), local installation not incident-banned; authenticated Cloudflare GET exact old certificateId/DER/CA status active. No old personal grant is restored. One new phone consent is mandatory."
+    },
+    {
+      "action": "GRANT_REVOKE",
+      "host": "native",
+      "method": "POST",
+      "path": "/v1/device-sessions/revoke",
+      "requestRequired": [
+        "authorizationVersion",
+        "operationId",
+        "grantId",
+        "revokeCapability"
+      ],
+      "requestOptional": [],
+      "keyProofRequired": false,
+      "responseVariants": [
+        {
+          "state": "REVOKED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "grantId": "Id",
+            "revokedAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        },
+        {
+          "state": "REVOKED",
+          "disposition": "TERMINAL",
+          "httpStatus": 200,
+          "required": {
+            "grantId": "Id",
+            "expiredAt": "Timestamp"
+          },
+          "optional": {},
+          "extraKeys": false
+        }
+      ],
+      "authorization": "Verified same-installation actual mTLS plus exact grant-specific pre-exchange revoke-only capability commitment; no deviceId, personal read/recovery authority, account adoption or installation-wide revocation. Current leaf or exact approved/stored staged reauthorization leaf for this same grant only."
+    }
+  ],
+  "states": [
+    "PENDING",
+    "APPROVED",
+    "ISSUING",
+    "ISSUED",
+    "UNCERTAIN",
+    "EXPIRED_NOT_ISSUED",
+    "DENIED",
+    "REVOKED",
+    "TOKEN_ISSUED",
+    "ACCOUNT_LOCKED",
+    "EXPIRED"
+  ],
+  "dispositions": [
+    "WAIT",
+    "CONTINUE_CLAIM",
+    "RECONCILE",
+    "CERTIFICATE_RECEIPT",
+    "EXCHANGE",
+    "CREDENTIAL_RECEIPT",
+    "USER_RESTART_ALLOWED",
+    "REAUTHORIZE",
+    "TERMINAL"
+  ],
+  "envelope": {
+    "success": "operation,authorizationVersion:1,state,disposition,operationId,serverTime; operation-specific exact fields only",
+    "error": "authorizationVersion:1,error:<fixed enum>,retryAfter?:integer5..86400; no raw detail/upstream/input reflection",
+    "unknownFields": "reject on requests and security-sensitive receipts; parse duplicate JSON keys as INVALID_REQUEST before dict construction",
+    "bodyLimitBytes": 12288,
+    "bodyDeadlineSeconds": 5
+  },
+  "lifetimes": {
+    "userCodeSeconds": 300,
+    "approvalExchangeSeconds": 300,
+    "pollIntervalSeconds": 5,
+    "accessSeconds": 900,
+    "bindingSeconds": 604800,
+    "credentialReceipt": "through issued access expiresAt; never extend original grant expiry",
+    "certificate": "actual validated notAfter; issuer policy90days existing; not an auth grant"
+  },
+  "proof": {
+    "algorithm": "RSASSA-PKCS1-v1_5 SHA256; RSA2048 e65537; reuse enrollment_crypto.verify_proof and validate_csr; not DPoP/JWT/client identity without TLS",
+    "format": "LF separated ASCII, no terminal LF: WegoH native access v2\\naction\\norigin\\nPOST\\nexactPath\\noperationId\\nconnectionId-or--\\ninstallationKeyId\\ncodeChallenge\\nproofNonce\\nbodySha256",
+    "bodyCanonicalization": "Known typed request without proof only; JSON UTF8 ensure_ascii=false, sorted ASCII field keys, separators comma/colon without whitespace; arrays already sorted if semantic set; no float/null/duplicate/unknown keys; no Unicode normalization; hash full body including verifier/capability, never log transcript/body/hash of secret input bodySha256 is SHA256 of those canonical JSON bytes (64lowerhex); not logged. operationId/idempotency comparison hashes canonical original begin bytes including exact requested fields. originalBeginHash means that request hash.",
+    "signatureEncoding": "exact canonical unpadded base64url 256-byte signature=342 chars",
+    "nonce": "Public CONNECTION_RECOVER uses exact ASCII literal begin-recovery and CONNECTION_CANCEL uses connection-cancel. Public claim/restart/certificate-recover use their persisted server ServerNonce. Native mTLS actions have NO separate RSA proof/proofNonce/challenge transcript: mutual TLS proves installation-key possession and PKCE/credential/capability authorizes the narrower personal action.",
+    "beginLoss": "Client persists original exact begin body/operationId/CSR/PKCE before network. Repeating identical begin is idempotent and never issues. Recovery sends CSR, originalBeginHash, original operation, verifier and key proof; mismatched stored original snapshot409, no information about other keys.",
+    "certRecover": "uses fixed enroll path even when old mTLS certificate denied; same installation key and approved original generation operation only; no personal token/capability/owner data",
+    "contextResolution": "Public begin validates signed CSR but issues nothing. Public recover derives installation key from submitted valid CSR, S256 from verifier, connectionId=-, fixed recover path and begin-recovery nonce. Public cancel loads the original begin/authorize connection by operationId and verifies its stored CSR or certified key, S256 from verifier, connectionId=-, fixed cancel path and connection-cancel nonce. Other public proof actions load canonical connection/generation record and compare installation key, operation, exact origin/method/path, nonce, original challenge, full body hash. Restart uses previousConnectionId/original server nonce and old verifier; transcript codeChallenge is new requested challenge and body contains previous connection/old verifier/restart ticket. Public cert recovery requires approved original generation operation. Native actions instead require current actual Cloudflare mTLS leaf binding to verified installation key/current cert generation before accessing any operation. No generic invented RSA proof on already-mutually-authenticated native calls.",
+    "renewalContextResolution": {
+      "CERTIFICATE_RENEW_BEGIN": {
+        "connectionId": "-",
+        "installationKeyId": "derive SHA256 SPKI from the validated request CSR and require exact request.installationKeyId",
+        "codeChallenge": "exact request.codeChallenge",
+        "proofNonce": "fixed literal certificate-renewal",
+        "source": "No prior connection exists; verify full action/origin/method/path/operation/key/challenge/nonce/canonical-body PoP plus live grant recovery capability before a main lease is created."
+      },
+      "CERTIFICATE_RENEW_CLAIM": {
+        "actionSelection": "Load exact connection first; saved kind RENEW selects CERTIFICATE_RENEW_CLAIM. Never infer the action from body shape or accept a CONNECTION_CLAIM signature for renewal.",
+        "connectionId": "exact path connectionId",
+        "codeChallenge": "stored renewal connection challenge",
+        "proofNonce": "stored renewal connection nonce"
+      },
+      "CREDENTIAL_REBIND": {
+        "certificateException": "Only exact approved lease CREDENTIAL_REBIND and its same-grant revoke-only GRANT_REVOKE accept a staged renewal leaf; separate fresh phone reauthorization permits only its SESSION_EXCHANGE/GRANT_REVOKE. Other API/WSS remain denied.",
+        "proof": "Actual staged mTLS SPKI/DER plus exact same live grant/device recovery capability and complete lease CAS; not loopback/Host trust.",
+        "otherRoutes": "The staged certificate is rejected for all other native API/bootstrap/WSS before commit. After commit only new current generation is accepted; old DER is rejected."
+      }
+    },
+    "renewalRelayBoundary": "Exact bounded enrollment path only to configured main loopback. Host/loopback are routing constraints, never authentication; main independently revalidates identical full PoP plus live purpose capability. No issuer grant/token table rights, no persistence of recoveryCapability, no private account/scope/token result through relay.",
+    "reauthorizationContextResolution": {
+      "CONNECTION_REAUTHORIZE": {
+        "connectionId": "-",
+        "codeChallenge": "exact new request.codeChallenge",
+        "proofNonce": "fixed literal account-reauthorization",
+        "dispatch": "Shared /v1/connections selects this action only from the complete expectedGeneration+installationKeyId+proofNonce+proof field bundle; absence selects original initial begin; partial/mixed bundles rejected."
+      },
+      "staging": "Stored INSTALL connection includes expectedGeneration. CONNECTION_CLAIM stages its public expectedGeneration+1 certificate without changing installation generation. Initial installation without expectedGeneration retains generation1 behavior.",
+      "exchangeException": "Only exact SESSION_EXCHANGE for this phone-approved grant and its original PKCE may use this exact staged DER/SPKI before main generation commit. Native main atomically checks old generation/current installation revision/slot snapshot and installs certificate+fresh personal grant/credentials. No other bootstrap/API/WSS accepts staged DER before commit. The exact staged leaf may also perform same-grant GRANT_REVOKE using only its precommitted revoke capability, including response-loss logout before deviceId is known.",
+      "revocation": "Explicit local installation incident ban or exact CA leaf pending_reactivation/pending_revocation/revoked/unknown rejects; HTTP401/403 or expiry alone never imply CA revocation. CA GET never issues a new leaf. Existing grant expiry/revocation never changes to live."
+    }
+  },
+  "capabilities": {
+    "derivation": "HMAC-SHA256 using original PKCE verifier ASCII as key and ASCII `WegoH native access v2 recovery\\n`+grantId or `WegoH native access v2 revoke\\n`+grantId as separate messages; canonical base64url32-byte result. Reuse Python hmac/hashlib primitives already in team_auth; declare vectors before Kotlin adoption.",
+    "serverStorage": "Separate SHA256(capability ASCII) by purpose and stable grantId. Revoke capability survives credentialEpoch/slotRevision rotation and optional scope shrink for that same grant only; it cannot restore/grant/read. Terminal revoke makes all personal credentials/recovery inactive but repeated matching revoke returns original terminal revokedAt without side effects; keep its hash through original grant absolute expiry, after which a validated expired acknowledgment permits outbox removal. Recovery capability also requires current grant/slot/credential epoch and active scopes; terminal grants never recover.",
+    "clientStorage": "Recovery capability remains only encrypted active-account state. Revoke outbox retains only revoke capability, grantId/deviceId, persisted operationId and installationKeyId/certificate generation binding. Native revoke uses actual mTLS key possession plus this revoke-only secret; original PKCE/access/refresh/recovery/server RSA nonce are not retained or needed. Never send it to generic data/refresh endpoints.",
+    "preExchangeRevocation": {
+      "derivation": "HMAC-SHA256 using original current begin PKCE verifier ASCII as key; message exact ASCII 'WegoH native access v2 revoke-before-exchange\\n'+installationKeyId+'\\n'+beginOperationId. Canonical base64url of32bytes. revokeCommitment uses existing hash_secret('revoke',capability) domain: SHA256 ASCII 'WegoH native v2 revoke\\n'+capability.",
+      "binding": "Commitment is required in all fresh consent begin/restart/account-authorize/reauthorize exact request canonical hashes. Main phone approval stores it in that grant before any personal exchange. SESSION_EXCHANGE derives from its validated original verifier/key/begin operation and compares exact commitment; no late first exchange after revoke.",
+      "storage": "Client retains only revoke-only capability/grantId/operation/key binding in encrypted logout outbox even without deviceId or credential receipt. Original verifier/access/refresh/recovery are removed from outbox. Before approval exists, local cancel is not claimed remote grant revocation.",
+      "idempotency": "GRANT_REVOKE can terminalize APPROVED before device allocation or TOKEN_ISSUED after exchange. Repeat same valid capability returns original terminal timestamp. Expiry acknowledgement only after the same exact capability proof. No operation replay restores personal credentials.",
+      "stagedException": "Exact staged reauthorization leaf is accepted only for its same grant SESSION_EXCHANGE or GRANT_REVOKE; technical renewal staged leaf is accepted only for its exact CREDENTIAL_REBIND or same-grant GRANT_REVOKE. All other native bootstrap/API/WSS deny staged leaf before main generation commit.",
+      "compatibility": "Existing SESSION_REVOKE(deviceId path) remains supported. Technical cert renewal, refresh, recovery and scope shrink preserve the precommitted stable revoke capability; existing recovery derivation remains grantId-specific."
+    }
+  },
+  "phone": {
+    "current": "https://wegoh.devforest.io/enroll.html?user_code=<UserCode>",
+    "redirect": "Only exact fixed enroll pathname and a single user_code public code. No authorization version selector, fragment parser, next/return_to/client URL or secret in URL. Cold Access/IdP return retention requires separate verification."
+  },
+  "errors": {
+    "400": [
+      "INVALID_REQUEST",
+      "INVALID_CSR",
+      "UNSUPPORTED_VERSION",
+      "INVALID_SCOPE",
+      "INVALID_CODE",
+      "REQUIRED_SCOPE_DENIED"
+    ],
+    "401": [
+      "AUTHENTICATION_REQUIRED",
+      "INVALID_CREDENTIAL"
+    ],
+    "403": [
+      "INVALID_PROOF",
+      "SCOPE_DENIED",
+      "CERTIFICATE_BINDING_MISMATCH",
+      "CONSENT_REVOKED",
+      "INSTALLATION_REVOKED"
+    ],
+    "404": [
+      "OPERATION_NOT_FOUND",
+      "ROUTE_NOT_FOUND"
+    ],
+    "408": [
+      "REQUEST_TIMEOUT"
+    ],
+    "409": [
+      "OPERATION_CONFLICT",
+      "STALE_EPOCH",
+      "CONSENT_CHANGED",
+      "RECOVERY_NOT_ALLOWED",
+      "MIGRATION_CONFLICT"
+    ],
+    "410": [
+      "AUTHORIZATION_EXPIRED",
+      "GRANT_EXPIRED",
+      "RECEIPT_EXPIRED"
+    ],
+    "413": [
+      "REQUEST_TOO_LARGE"
+    ],
+    "429": [
+      "RATE_LIMITED",
+      "ENROLLMENT_STORAGE_LIMIT"
+    ],
+    "503": [
+      "ISSUER_UNAVAILABLE",
+      "ISSUANCE_UNCERTAIN",
+      "SERVICE_UNAVAILABLE"
+    ]
+  },
+  "safety": "No new POST issuance on uncertain/timeout/GET absence. No test/CLI/private-folder/operator routine in normal product recovery. No production handlers or CF calls in P1 codec/policy phase.",
+  "receipts": {
+    "certificateReceipt": {
+      "required": {
+        "certificatePem": "SingleValidatedPem",
+        "certificateSha256": "CertificateSha256",
+        "installationKeyId": "InstallationKeyId",
+        "generation": "Generation",
+        "generationOperationId": "Id",
+        "expiresAt": "Timestamp"
+      },
+      "optional": {},
+      "extraKeys": false
+    },
+    "credentialReceipt": {
+      "required": {
+        "accessToken": "Secret",
+        "refreshToken": "Secret",
+        "tokenType": "literal Bearer",
+        "accountId": "AccountId",
+        "grantId": "Id",
+        "deviceId": "Id",
+        "installationKeyId": "InstallationKeyId",
+        "certificateSha256": "CertificateSha256",
+        "generation": "Generation",
+        "slotRevision": "Epoch",
+        "credentialEpoch": "Epoch",
+        "consentVersion": "ConsentVersion",
+        "scopes": "ScopeSet",
+        "expiresAt": "Timestamp",
+        "grantExpiresAt": "Timestamp",
+        "recoveryCapability": "Secret",
+        "revokeCapability": "Secret"
+      },
+      "optional": {},
+      "extraKeys": false
+    }
+  },
+  "responseCommonFields": {
+    "authorizationVersion": "Version",
+    "operation": "AuthorizationOperation",
+    "operationId": "Id",
+    "state": "State",
+    "disposition": "Disposition",
+    "serverTime": "Timestamp"
+  },
+  "phoneOperations": [
+    {
+      "action": "PHONE_STATUS",
+      "method": "GET",
+      "path": "/v1/connections/{userCode}",
+      "authentication": "existing Access JWT+real browser session; no issuer auth",
+      "responseRequired": {
+        "authorizationVersion": "Version",
+        "userCode": "UserCode",
+        "deviceName": "DeviceName",
+        "state": "State",
+        "expiresAt": "Timestamp",
+        "requestedScopes": "ScopeSet",
+        "requiredScopes": "RequiredScopes",
+        "consentVersion": "ConsentVersion",
+        "keepSignedInDefault": "literal false",
+        "currentAccountDisplayName": "DeviceName",
+        "disclosureSnapshot": "DisclosureSnapshot"
+      },
+      "extraKeys": false
+    },
+    {
+      "action": "PHONE_APPROVE",
+      "method": "POST",
+      "path": "/v1/connections/{userCode}",
+      "authentication": "Access JWT+real current browser membership+Origin+existing session-bound X-WegoH-CSRF",
+      "requestRequired": {
+        "authorizationVersion": "Version",
+        "consentVersion": "ConsentVersion",
+        "approvedScopes": "ApprovedScopeSet",
+        "keepSignedIn": "KeepSignedIn",
+        "disclosureVersion": "integer literal2",
+        "disclosureSha256": "CertificateSha256"
+      },
+      "responseRequired": {
+        "authorizationVersion": "Version",
+        "state": "APPROVED or DENIED",
+        "userCode": "UserCode",
+        "expiresAt": "Timestamp"
+      },
+      "extraKeys": false
+    },
+    {
+      "action": "PHONE_DENY",
+      "method": "DELETE",
+      "path": "/v1/connections/{userCode}",
+      "authentication": "same POST mutation checks",
+      "requestRequired": {
+        "authorizationVersion": "Version"
+      },
+      "responseRequired": {
+        "authorizationVersion": "Version",
+        "state": "literal DENIED",
+        "userCode": "UserCode"
+      },
+      "extraKeys": false
+    }
+  ],
+  "notes": [
+    "No codec should infer optional security fields from question-mark strings; variant exact fields above are authoritative closed operation schemas.",
+    "Requested scope set on begin includes mandatory; phone approvedScopes may refuse mandatory, producing terminal denied with zero issuance.",
+    "Public version 1 is independent of immutable internal cryptographic context labels, storage/AAD version, consent/disclosure revision and certificate generation. No public version fallback or manual pairing/enrollment protocol is provided."
+  ],
+  "requestFieldTypes": {
+    "authorizationVersion": "Version",
+    "operationId": "Id",
+    "connectionId": "Id",
+    "name": "DeviceName",
+    "csrPem": "SingleValidatedPem",
+    "certificatePem": "SingleValidatedPem",
+    "codeChallenge": "S25643",
+    "requestedScopes": "ScopeSet",
+    "codeVerifier": "PkceVerifier",
+    "oldCodeVerifier": "PkceVerifier",
+    "originalBeginHash": "CertificateSha256",
+    "proof": "RSA2048Signature342",
+    "proofNonce": "ServerNonce, except explicit per-op begin-recovery sentinel",
+    "previousConnectionId": "Id",
+    "restartTicket": "Secret",
+    "legacyDeviceId": "Id",
+    "grantId": "Id",
+    "deviceId": "Id",
+    "recoveryCapability": "Secret",
+    "refreshToken": "Secret",
+    "revokeCapability": "Secret",
+    "installationKeyId": "InstallationKeyId",
+    "generationOperationId": "Id",
+    "expectedGeneration": "Generation",
+    "revokeCommitment": "CertificateSha256"
+  },
+  "scopeActivation": "requestedScopes includes mandatory2+chosen optional. approvedScopes may decline any; missing mandatory terminal DENIED (no new cert/grant/token); signed request and phone approval snapshots never inferred from native role.",
+  "disclosureRegistry": {
+    "version": 2,
+    "source": "immutable server disclosure registry, returned before explicit approval; public authorization version is independent from consent/disclosure revision",
+    "binding": "Phone approve must echo disclosureVersion and disclosureSha256 alongside consentVersion. Server compares exact immutable snapshot/current required/scoped purposes, not client text. Unknown/stale version/hash409 CONSENT_CHANGED. Token/grant saves consentVersion+disclosureVersion/hash.",
+    "schema": {
+      "required": {
+        "disclosureVersion": "integer literal2",
+        "disclosureSha256": "64lowerhex canonical immutable snapshot excluding this hash",
+        "scopeDisclosures": "array exactly requested known scopes sorted by scope, one each",
+        "bindingMaxSeconds": "integer literal604800",
+        "keepSignedInDisclosure": "fixed reviewed registry text; choice defaults false"
+      },
+      "scopeItemRequired": {
+        "scope": "KnownScope",
+        "required": "JSONbool",
+        "dataCategories": "nonempty array of fixed registry text",
+        "purpose": "fixed registry text",
+        "retentionPolicyId": "fixed per-scope enum",
+        "retention": "fixed registry text, NOT user code expiry",
+        "refusalEffect": "fixed registry text",
+        "withdrawalEffect": "fixed registry text"
+      },
+      "extraKeys": false
+    },
+    "scopePolicies": [
+      {
+        "scope": "account:read",
+        "required": true,
+        "dataCategories": [
+          "계정 식별자",
+          "표시 이름"
+        ],
+        "purpose": "본인 확인과 현재 연결 계정 표시",
+        "retentionPolicyId": "account-read-cache-until-grant",
+        "retention": "조회 캐시는 연결 유효기간(최대7일) 안에서만 사용하고 동의 철회 시 삭제합니다. 로그아웃 시 즉시 잠급니다. 원본 계정 및 본인이 만든 콘텐츠는 별도 탈퇴와 삭제 계약을 따릅니다.",
+        "refusalEffect": "이 기기의 개인 연결을 시작하지 않습니다.",
+        "withdrawalEffect": "개인 연결을 종료하고 해당 조회 캐시를 삭제합니다."
+      },
+      {
+        "scope": "account:write",
+        "required": false,
+        "dataCategories": [
+          "직접 입력한 계정 표시 이름"
+        ],
+        "purpose": "차량에서 본인 계정 이름 변경. 웹과 연결한 다른 차량에도 반영됩니다.",
+        "retentionPolicyId": "account-name-until-change-or-account-deletion",
+        "retention": "저장한 이름은 다시 변경하거나 계정을 삭제할 때까지 보관합니다. 차량의 조회 캐시는 연결 유효기간 안에서만 사용합니다.",
+        "refusalEffect": "계정 확인과 기존 연결은 유지되며 차량에서 이름을 변경할 수 없습니다.",
+        "withdrawalEffect": "이 차량의 이름 변경 권한을 중단합니다. 이미 저장한 계정 이름을 자동으로 되돌리거나 계정을 삭제하지 않습니다."
+      },
+      {
+        "scope": "courses:read",
+        "required": false,
+        "dataCategories": [
+          "허용된 코스 정보",
+          "본인 코스 목록"
+        ],
+        "purpose": "차량에서 선택한 드라이브 코스를 확인하고 준비",
+        "retentionPolicyId": "course-read-cache-until-grant",
+        "retention": "조회 캐시는 연결 유효기간(최대7일) 안에서만 사용하고 동의 철회 시 삭제합니다. 원본 코스와 미업로드 주행 기록은 각각의 별도 보관 및 삭제 계약을 따르며 이 조회 동의로 재귀속하지 않습니다.",
+        "refusalEffect": "차량에서 코스 목록과 코스 데이터를 조회하지 않습니다.",
+        "withdrawalEffect": "코스 조회와 관련 알림을 중단하고 해당 조회 캐시를 삭제합니다."
+      },
+      {
+        "scope": "device:self:manage",
+        "required": true,
+        "dataCategories": [
+          "현재 기기 연결 식별자",
+          "동의 범위",
+          "연결 기한과 해제 상태"
+        ],
+        "purpose": "현재 기기 연결 확인과 해제",
+        "retentionPolicyId": "self-device-until-grant",
+        "retention": "연결 관리 정보는 원 연결 유효기간까지 사용합니다. 철회 시 개인 식별 및 조회 정보는 목적별로 제거하고 재생 차단에 필요한 비식별 해시만 원 유효기간까지 보관합니다. 사용자 여행 기록을 삭제하는 계약이 아닙니다.",
+        "refusalEffect": "이 기기의 개인 연결을 시작하지 않습니다.",
+        "withdrawalEffect": "개인 연결을 종료하며 다른 기기나 차량을 제어하지 않습니다."
+      },
+      {
+        "scope": "playlists:read",
+        "required": false,
+        "dataCategories": [
+          "본인 음악 목록 제목",
+          "트랙 제목과 링크"
+        ],
+        "purpose": "차량에서 미리 준비한 음악 목록 확인",
+        "retentionPolicyId": "playlist-read-cache-until-grant",
+        "retention": "조회 캐시는 연결 유효기간(최대7일) 안에서만 사용하고 동의 철회 시 삭제합니다. 본인이 만든 원본 음악 목록은 별도 삭제 요청을 따릅니다.",
+        "refusalEffect": "차량에서 음악 목록 데이터를 조회하지 않습니다.",
+        "withdrawalEffect": "음악 목록 조회와 관련 알림을 중단하고 해당 조회 캐시를 삭제합니다."
+      }
+    ],
+    "keepSignedInDisclosure": "기본은 임시 연결로, 앱을 다시 실행하면 잠깁니다. 로그인 유지 시 이 차량의 같은 사용자 프로필에서 다른 사람도 내 계정을 이용할 수 있습니다. 최대 7일 후에는 다시 연결하며, 언제든 연결을 해제할 수 있습니다.",
+    "status": "wire/동의 의미 후보; 실제 제품 문구·시각/접근성 승인은 별도이며 UI 구현 전 해당 독립 검토 필요"
+  },
+  "functional": {
+    "schemaVersion": 1,
+    "authority": "current NativePrincipal + live grant/device/key + explicit functional consent + resource-specific rights",
+    "baseScopesUnchanged": [
+      "account:read",
+      "courses:read",
+      "device:self:manage",
+      "playlists:read"
+    ],
+    "revisionMaximum": 2147483647,
+    "disclosureVersion": 5,
+    "disclosureSha256": "e7ab946a1a2c6642cf0993a472ba8963521766e5761e1d10fed950e4b630ecd6",
+    "disclosureHashMeaning": "SHA256 of canonical UTF8 JSON {version,purposes}; explicit approved subset is separately bound in the closed consent body. No purpose is inferred from base scopes.",
+    "purposeRegistry": [
+      {
+        "id": "cautions:read",
+        "label": "주의 기록",
+        "dataCategories": [
+          "허용된 관측 주의 기록",
+          "출처와 관측 시각"
+        ],
+        "purpose": "본인 기록과 공유를 허용받은 주의 기록에서 내용과 관측 시각을 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "device-commands:receive",
+        "label": "명령 받기",
+        "dataCategories": [
+          "허용한 명령",
+          "전달 상태와 확인 상태"
+        ],
+        "purpose": "허용한 상대의 기기 명령을 받고, 처리 결과를 전달합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": true
+      },
+      {
+        "id": "device-commands:request",
+        "label": "명령 요청",
+        "dataCategories": [
+          "허용한 명령",
+          "전달 상태와 확인 상태"
+        ],
+        "purpose": "상대가 허용한 기기에 명령을 요청하고 처리 상태를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "driving-score:report",
+        "label": "여행 안전운전 점수 공유",
+        "dataCategories": [
+          "여행 전체 안전운전 점수",
+          "급가속·급감속 횟수",
+          "측정 가능·확정 여부"
+        ],
+        "purpose": "픽업부터 드랍까지 여행 전체의 점수와 사건 횟수를 현재 같은 차 일행에게 공유합니다. 구간 경로 v2 여행의 참가 차 현재 운전자·동승자에게는 진행 중 누적 점수와 최종 점수·대결 결과를 공유합니다. 원시 속도와 시간별 표본은 보내지 않습니다.",
+        "retention": "여행·차별 최신 누적 점수와 승인 증명을 암호화 보관합니다. 현재 권한에 따라 공개하고 여행 삭제 시 삭제합니다. 기존 코스별 기록은 유지하며 새 전체 점수로 변환하지 않습니다.",
+        "withdrawal": "기능 공유 설정에서 끄면 이후 점수 전송과 기존 대결 점수·승자 공개가 차단됩니다. 기기의 로컬 점수와 기존 코스 완료는 유지됩니다. 다시 공유하려면 현재 설명 승인 뒤 최종 보고를 다시 보냅니다.",
+        "refusal": "선택하지 않아도 기기 안의 안전운전 평가와 코스 완료를 사용할 수 있고 여행 대결에는 자동 참가합니다. 보고하지 않은 점수나 승리를 만들지 않습니다.",
+        "default": false
+      },
+      {
+        "id": "friends:manage",
+        "label": "친구 관리",
+        "dataCategories": [
+          "현재 친구 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "친구를 초대하거나 요청에 응답하고, 필요한 상대를 차단합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "friends:read",
+        "label": "친구 목록",
+        "dataCategories": [
+          "현재 친구 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "친구 목록과 초대 및 요청 상태를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "history:read",
+        "label": "여행 기록 보기",
+        "dataCategories": [
+          "허용된 여행 기록",
+          "방문과 경로 및 사진"
+        ],
+        "purpose": "본인 기록과 공유를 허용받은 방문, 경로, 사진을 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "history:write",
+        "label": "여행 기록 남기기",
+        "dataCategories": [
+          "허용된 여행 기록",
+          "방문과 경로 및 사진"
+        ],
+        "purpose": "직접 선택한 방문, 후기, 별점과 저장을 허용한 경로를 기록합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "missions:progress",
+        "label": "미션 진행 알리기",
+        "dataCategories": [
+          "현재 미션",
+          "직접 선택한 참여와 진행 상태"
+        ],
+        "purpose": "별도로 참여하고 기기 사용을 허용한 미션의 진행 상태를 전달합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "missions:read",
+        "label": "미션 보기",
+        "dataCategories": [
+          "현재 미션",
+          "직접 선택한 참여와 진행 상태"
+        ],
+        "purpose": "참여한 여행방의 미션과 진행 상태를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "recommendations:use",
+        "label": "추천",
+        "dataCategories": [
+          "명시 추천 조건",
+          "선택한 피드백"
+        ],
+        "purpose": "허용한 정보를 바탕으로 추천을 보고, 선택한 좋아요나 관심 없음을 반영합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-music:control",
+        "label": "방 음악 선택",
+        "dataCategories": [
+          "곡 제목",
+          "원곡 링크",
+          "현재 곡 상태"
+        ],
+        "purpose": "현재 DJ일 때 방에 공유할 곡을 선택하고 현재 곡 상태를 바꿉니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-music:read",
+        "label": "방 음악 보기",
+        "dataCategories": [
+          "곡 제목",
+          "원곡 링크",
+          "현재 곡 상태"
+        ],
+        "purpose": "음악 공유에 동의한 여행방의 현재 곡 제목과 원곡 링크를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-voice:receive",
+        "label": "방 음성 듣기",
+        "dataCategories": [
+          "현재 음성 프레임",
+          "송수신 상태"
+        ],
+        "purpose": "음성 공유에 동의한 여행방에서 상대의 음성을 듣습니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-voice:transmit",
+        "label": "방에 음성 보내기",
+        "dataCategories": [
+          "현재 음성 프레임",
+          "송수신 상태"
+        ],
+        "purpose": "음성 공유에 동의한 여행방에서 말하기 버튼을 누르는 동안 음성을 보냅니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "rooms:interact",
+        "label": "여행방 참여",
+        "dataCategories": [
+          "현재 여행방 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "여행방에 참여하거나 나가고, 허용된 역할과 신호, 투표를 사용합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "rooms:read",
+        "label": "여행방 보기",
+        "dataCategories": [
+          "현재 여행방 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "참여한 여행방과 받은 초대의 정보를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "vehicle-location:report",
+        "label": "위치 보내기",
+        "dataCategories": [
+          "보고 위치",
+          "관측 시각",
+          "정확도"
+        ],
+        "purpose": "위치 공유에 동의한 여행방에 기기에서 확인한 위치와 관측 시각, 정확도를 보냅니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "vehicle-reports:read",
+        "label": "방 기기 소식 보기",
+        "dataCategories": [
+          "공유를 허용받은 위치와 방문 정보",
+          "관측 시각과 정확도"
+        ],
+        "purpose": "서로 공유를 허용한 여행방 참여자의 위치와 방문 소식을 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "vehicle-visits:report",
+        "label": "방문 알리기",
+        "dataCategories": [
+          "확인된 방문 정보",
+          "승인된 코스 정보"
+        ],
+        "purpose": "방문 공유에 동의한 여행방에 승인된 코스의 확인된 방문을 알립니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      }
+    ],
+    "nativeRoutes": [
+      {
+        "method": "GET",
+        "path": "/v1/social/overview",
+        "all": [],
+        "any": [
+          "friends:read",
+          "rooms:read",
+          "history:read"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{id}",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/trips/{id}/respond",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/friends/requests",
+        "all": [
+          "friends:read",
+          "friends:manage"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/friends/requests/{target}/respond",
+        "all": [
+          "friends:read",
+          "friends:manage"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/friends/{target}",
+        "all": [
+          "friends:read",
+          "friends:manage"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/blocks",
+        "all": [
+          "friends:read",
+          "friends:manage"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/blocks/{target}",
+        "all": [
+          "friends:read",
+          "friends:manage"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/invites/{code}",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/rooms/{room}",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/rooms",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/rooms/join",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/rooms/{room}/leave",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/v1/social/rooms/{room}/role",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/v1/social/rooms/{room}/consents",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/rooms/{room}/signals",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/rooms/{room}/signals/{identifier}/vote",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/rooms/{room}/signals/{identifier}/vote",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/history",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/history/{item}",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/history/{item}/visits/{visit}/photos/{photo}",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/history",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/rooms/{room}/history",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/social/history/{item}",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/history/{item}",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/history/{item}/visits",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/social/history/{item}/visits/{vid}",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/history/{item}/visits/{vid}",
+        "all": [
+          "history:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/history/{item}/trace-batches",
+        "all": [
+          "history:read",
+          "history:write"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/rooms/{room}/music",
+        "all": [
+          "rooms:read",
+          "room-music:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/device/music-permission",
+        "all": [
+          "rooms:read",
+          "room-music:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/social/rooms/{room}/music",
+        "all": [
+          "rooms:read",
+          "room-music:control"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/rooms/{room}/music",
+        "all": [
+          "rooms:read",
+          "room-music:control"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/device/vehicle-domain",
+        "all": [],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/rooms/{room}/device-reports",
+        "all": [
+          "vehicle-reports:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/rooms/{room}/reports/location",
+        "all": [
+          "vehicle-location:report"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/rooms/{room}/reports/visits",
+        "all": [
+          "vehicle-visits:report"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/device/control-support",
+        "all": [
+          "device-commands:receive"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/device/command-inbox",
+        "all": [
+          "device-commands:receive"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/device/requests/{identifier}/claim",
+        "all": [
+          "device-commands:receive"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/device/requests/{identifier}/ack",
+        "all": [
+          "device-commands:receive"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/rooms/{room}/device-command-access",
+        "all": [
+          "device-commands:request"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/rooms/{room}/device-requests",
+        "all": [
+          "device-commands:request"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/rooms/{room}/device-requests",
+        "all": [
+          "device-commands:request"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/rooms/{room}/device-requests/{identifier}",
+        "all": [
+          "device-commands:request"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/rooms/{room}/missions",
+        "all": [
+          "rooms:read",
+          "missions:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{room}/missions",
+        "all": [
+          "rooms:read",
+          "missions:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/rooms/{room}/missions/{mission}/progress",
+        "all": [
+          "rooms:read",
+          "missions:read",
+          "missions:progress"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/recommendations/settings",
+        "all": [
+          "recommendations:use"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/recommendations/query",
+        "all": [
+          "recommendations:use"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/recommendations/feedback",
+        "all": [
+          "recommendations:use"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/cautions",
+        "all": [
+          "cautions:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/cautions/{item}",
+        "all": [
+          "cautions:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/rooms/{room}/music-permissions",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/rooms/{room}/voice-permissions",
+        "all": [],
+        "any": [
+          "room-voice:receive",
+          "room-voice:transmit"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/voice-rooms",
+        "all": [],
+        "any": [
+          "room-voice:receive",
+          "room-voice:transmit"
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{id}/workspace",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{id}/signals",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{id}/places",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/trips/{id}/signals",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/trips/{id}/signals/{signal}/vote",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/social/trips/{id}/signals/{signal}/vote",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/trips/{id}/signals/{signal}/finish",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{trip}/vehicle-domain",
+        "all": [],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{trip}/device-reports",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{trip}/locations",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{trip}/locations/me",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{trip}/reports/location",
+        "all": [
+          "vehicle-location:report"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{trip}/reports/visits",
+        "all": [
+          "vehicle-visits:report"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{trip}/music-permissions",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{trip}/voice-permissions",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{id}",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{id}/location-sharing",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/v1/native/trips/{id}/location-sharing",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{id}/cars/{carId}/places",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/native/trips/{id}/cars/{carId}/route-order",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/native/trips/{id}/cars/{carId}/route-progress",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/cars/{carId}/route-arrivals",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/cars/{carId}/courses/{packId}/complete",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/v1/native/trips/{id}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/members",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/members/{accountId}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/link",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/link",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/cars",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/v1/native/trips/{id}/cars/{carId}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/cars/{carId}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/native/trips/{id}/cars/{carId}/ride",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/ride",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/courses",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/courses/{packId}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/start",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/finish",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/cars/{carId}/places",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/cars/{carId}/places/{placeId}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/cars/{carId}/ride-invites",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/cars/{carId}/ride-invites/{inviteId}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/v1/native/trips/{id}/cars/{carId}/riders/{accountId}",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{id}/friends",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{id}/signals/candidates",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{id}/voice-participation",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/v1/native/trips/{id}/voice-participation",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{trip}/music/saved-playlists",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/trips/{trip}/music/saved-playlists",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PATCH",
+        "path": "/v1/social/trips/{trip}/music/saved-playlists/{item}/position",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/social/trips/{trip}/music/now-playing",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/native/trips/{id}/cars/{carId}/courses/{packId}/driving-score",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{id}/driving-versus",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{id}/driving-score",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/native/trips/{id}/cars/{carId}/driving-score",
+        "all": [
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{trip}/voice-clips",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/social/trips/{trip}/voice-clips",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{trip}/voice-clips/{identifier}",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/social/trips/{room}/voice/filters",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "GET",
+        "path": "/v1/native/trips/{trip}/listen-together",
+        "all": [
+          "rooms:read"
+        ],
+        "any": []
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/native/trips/{trip}/listen-together/participation",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{trip}/listen-together/start",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      },
+      {
+        "method": "POST",
+        "path": "/v1/native/trips/{trip}/listen-together/end",
+        "all": [
+          "rooms:read",
+          "rooms:interact"
+        ],
+        "any": []
+      }
+    ],
+    "apis": {
+      "nativeGet": {
+        "method": "GET",
+        "path": "/v1/device/functional-permissions",
+        "responseFields": {
+          "authorizationVersion": "Version",
+          "deviceId": "Id32",
+          "grantId": "Id32",
+          "revision": "FunctionalRevisionOrZero",
+          "expiresAt": "EpochSeconds",
+          "approvedPurposes": "Purposes",
+          "functionalDisclosureVersion": "FunctionalDisclosureVersion",
+          "functionalDisclosureSha256": "Sha256"
+        }
+      },
+      "ownerGet": {
+        "method": "GET",
+        "path": "/v1/devices/{device}/functional-permissions",
+        "responseFields": {
+          "authorizationVersion": "Version",
+          "deviceId": "Id32",
+          "grantId": "Id32",
+          "revision": "FunctionalRevisionOrZero",
+          "expiresAt": "EpochSeconds",
+          "approvedPurposes": "Purposes",
+          "functionalDisclosureVersion": "FunctionalDisclosureVersion",
+          "functionalDisclosureSha256": "Sha256"
+        }
+      },
+      "ownerPut": {
+        "method": "PUT",
+        "path": "/v1/devices/{device}/functional-permissions",
+        "requestFields": {
+          "authorizationVersion": "Version",
+          "grantId": "Id32",
+          "revision": "FunctionalRevisionOrZero",
+          "approvedPurposes": "Purposes",
+          "functionalDisclosureVersion": "FunctionalDisclosureVersion",
+          "functionalDisclosureSha256": "Sha256"
+        },
+        "responseFields": {
+          "authorizationVersion": "Version",
+          "deviceId": "Id32",
+          "grantId": "Id32",
+          "revision": "FunctionalRevisionOrZero",
+          "expiresAt": "EpochSeconds",
+          "approvedPurposes": "Purposes",
+          "functionalDisclosureVersion": "FunctionalDisclosureVersion",
+          "functionalDisclosureSha256": "Sha256"
+        }
+      },
+      "ownerDelete": {
+        "method": "DELETE",
+        "path": "/v1/devices/{device}/functional-permissions/{purpose}",
+        "requestBody": false,
+        "responseFields": {
+          "authorizationVersion": "Version",
+          "deviceId": "Id32",
+          "grantId": "Id32",
+          "revision": "FunctionalRevisionOrZero",
+          "expiresAt": "EpochSeconds",
+          "approvedPurposes": "Purposes",
+          "functionalDisclosureVersion": "FunctionalDisclosureVersion",
+          "functionalDisclosureSha256": "Sha256"
+        }
+      }
+    },
+    "initialConsent": {
+      "requestedPurposes": "optional sorted unique subset; absent or [] grants none",
+      "approvedPurposes": "optional explicit subset of requested; absent grants none",
+      "noPurposeReceipt": "Preserve original request and response form when no functional purpose was requested. Public certificate receipts contain no personal functional consent."
+    },
+    "eventResources": {
+      "courses": "base courses:read",
+      "playlists": "base playlists:read",
+      "devices": "base device:self:manage. exact own-device functional change도 이 resource로 알림; credential/기한/epoch는 변경하지 않음.",
+      "friends": "friends:read",
+      "rooms": "rooms:read + 현재 소속 방의 가시성",
+      "history": "history:read, 현재 본인/친구별 허용을 다시 확인",
+      "vehicle": "vehicle-reports:read + 현재 방/양측 보고 허용",
+      "commands": "device-commands:receive 또는 request + 본인 inbox/현재 허용된 요청의 투영",
+      "missions": "missions:read + 현재 방/미션 참여 가시성",
+      "roomMusic": "room-music:read + 현재 방 music 허용",
+      "recommendations": "recommendations:use,동일owner의설정/현재추천조건변경invalidation만",
+      "cautions": "cautions:read,현재본인/친구별허용된주의투영변경만"
+    },
+    "eventsDefault": [
+      "courses",
+      "devices",
+      "playlists"
+    ],
+    "functionalRevisionIsCredentialEpoch": false,
+    "roomMusic": {
+      "authorizationVersion": 1,
+      "disclosureVersion": 1,
+      "disclosureSha256": "50222b2428f0eccf87020790bd85da50ccd0fdc87f0f60de08d49a7d329257ac",
+      "disclosure": {
+        "title": "여행방 음악 공유",
+        "purpose": "이 기기에서 선택한 여행방의 음악 목록을 보거나 공유합니다.",
+        "permissions": [
+          {
+            "id": "receiveMusic",
+            "label": "방 음악 보기",
+            "purpose": "선택한 여행방에 공유된 곡 제목과 음악 링크를 봅니다.",
+            "dataCategories": [
+              "음악 목록 이름",
+              "곡 제목",
+              "음악 링크"
+            ],
+            "retention": "기능 동의, 방, 연결의 기한 중 가장 이른 때까지 허용합니다.",
+            "withdrawal": "이 기기의 해당 방 음악 수신을 즉시 중단합니다.",
+            "refusal": "이 기기에서 해당 방의 음악 목록을 볼 수 없습니다."
+          },
+          {
+            "id": "shareMusic",
+            "label": "방 음악 공유",
+            "purpose": "이 기기에서 선택한 음악 목록과 곡을 방에 공유합니다.",
+            "dataCategories": [
+              "음악 목록 이름",
+              "곡 제목",
+              "음악 링크",
+              "선택한 곡"
+            ],
+            "retention": "기능 동의, 방, 연결의 기한 중 가장 이른 때까지 허용합니다.",
+            "withdrawal": "이 기기에서 보낸 방 음악 공유를 중단하고 공유 사본을 지웁니다.",
+            "refusal": "이 기기에서 해당 방에 음악을 공유할 수 없습니다."
+          }
+        ]
+      },
+      "ownerPath": "/v1/devices/{device}/rooms/{room}/music-permissions",
+      "nativePath": "/v1/native/rooms/{room}/music-permissions",
+      "snapshotFields": [
+        "authorizationVersion",
+        "deviceId",
+        "grantId",
+        "roomId",
+        "revision",
+        "functionalRevision",
+        "memberJoinedAt",
+        "expiresAt",
+        "permissions",
+        "roomMusicDisclosureVersion",
+        "roomMusicDisclosureSha256"
+      ],
+      "ownerPutFields": [
+        "authorizationVersion",
+        "grantId",
+        "revision",
+        "functionalRevision",
+        "memberJoinedAt",
+        "permissions",
+        "roomMusicDisclosureVersion",
+        "roomMusicDisclosureSha256"
+      ],
+      "permissions": [
+        "receiveMusic",
+        "shareMusic"
+      ]
+    },
+    "roomVoice": {
+      "authorizationVersion": 1,
+      "disclosureVersion": 2,
+      "disclosureSha256": "c2f43974b09137e0a63fd32621c89b49a288704dee494743cf876b47a3d166a7",
+      "disclosure": {
+        "title": "여행방 음성 대화",
+        "purpose": "이 기기에서 선택한 여행방의 음성을 듣거나 내 목소리를 보냅니다.",
+        "permissions": [
+          {
+            "id": "receiveVoice",
+            "label": "방 음성 듣기",
+            "purpose": "선택한 여행방에서 허용된 참여자의 목소리를 듣습니다.",
+            "dataCategories": [
+              "참여자의 목소리",
+              "말하는 참여자 표시",
+              "음성을 나눌 여행방 이름"
+            ],
+            "retention": "기능 동의, 방, 연결의 기한 중 가장 이른 때까지 허용하며 음성은 저장하지 않습니다.",
+            "withdrawal": "이 기기의 해당 방 음성 수신을 중단하고 대기 중인 음성을 지웁니다.",
+            "refusal": "이 기기에서 해당 방의 목소리를 들을 수 없습니다. 음성 보내기는 별도로 선택합니다."
+          },
+          {
+            "id": "transmitVoice",
+            "label": "방에 음성 보내기",
+            "purpose": "사용자가 말하기를 선택할 때 마이크로 받은 목소리를 허용된 방 참여자에게 보냅니다.",
+            "dataCategories": [
+              "내 목소리",
+              "말하는 참여자 표시",
+              "음성을 나눌 여행방 이름"
+            ],
+            "retention": "기능 동의, 방, 연결의 기한 중 가장 이른 때까지 허용하며 음성은 저장하지 않습니다.",
+            "withdrawal": "이 기기의 해당 방 음성 송신을 중단하고 대기 중인 음성을 지웁니다. 이미 전달된 음성은 되돌릴 수 없습니다.",
+            "refusal": "이 기기에서 해당 방에 목소리를 보낼 수 없습니다. 음성 듣기는 별도로 선택합니다."
+          }
+        ]
+      },
+      "ownerPath": "/v1/devices/{device}/rooms/{room}/voice-permissions",
+      "nativePath": "/v1/native/rooms/{room}/voice-permissions",
+      "snapshotFields": [
+        "authorizationVersion",
+        "deviceId",
+        "grantId",
+        "roomId",
+        "revision",
+        "functionalRevision",
+        "memberJoinedAt",
+        "expiresAt",
+        "permissions",
+        "roomVoiceDisclosureVersion",
+        "roomVoiceDisclosureSha256"
+      ],
+      "ownerPutFields": [
+        "authorizationVersion",
+        "grantId",
+        "revision",
+        "functionalRevision",
+        "memberJoinedAt",
+        "permissions",
+        "roomVoiceDisclosureVersion",
+        "roomVoiceDisclosureSha256"
+      ],
+      "permissions": [
+        "receiveVoice",
+        "transmitVoice"
+      ],
+      "roomList": {
+        "method": "GET",
+        "path": "/v1/native/voice-rooms",
+        "pageSize": 20,
+        "cursorPattern": "^[a-f0-9]{32}$",
+        "responseFields": [
+          "authorizationVersion",
+          "deviceId",
+          "grantId",
+          "functionalRevision",
+          "items",
+          "nextCursor"
+        ],
+        "itemFields": [
+          "roomId",
+          "name",
+          "availableDirections",
+          "revision",
+          "memberJoinedAt",
+          "expiresAt"
+        ],
+        "nameProjection": "TeamRooms.access/review_name: current owner/share projection or existing placeholder; no raw other-owner name",
+        "requiresCurrentRoomVoiceNotice": true
+      }
+    },
+    "nativeWebSockets": [
+      {
+        "path": "/v1/social/rooms/{room}/voice",
+        "all": [],
+        "any": [
+          "room-voice:receive",
+          "room-voice:transmit"
+        ],
+        "receive": [
+          "room-voice:receive"
+        ],
+        "transmit": [
+          "room-voice:transmit"
+        ],
+        "functionalRevisionHeader": "X-WegoH-Functional-Revision",
+        "roomRevisionHeader": "X-WegoH-Room-Voice-Revision"
+      },
+      {
+        "path": "/v1/social/trips/{trip}/voice",
+        "all": [
+          "rooms:read"
+        ],
+        "any": [],
+        "receive": [
+          "rooms:read"
+        ],
+        "transmit": [
+          "rooms:interact"
+        ],
+        "functionalRevisionHeader": "X-WegoH-Functional-Revision",
+        "roomRevisionHeader": "X-WegoH-Room-Voice-Revision"
+      }
+    ],
+    "previousDisclosures": [
+      {
+        "version": 1,
+        "sha256": "92d9dc71c48ea3b74f5b875ec527a6b17b5ba99dcbda8c6ed6215aed7d374bc7"
+      },
+      {
+        "version": 2,
+        "sha256": "ec92f07e28aa015408006bd5430f9d9b440870238fabc9393c176c263d4e6657",
+        "purposeIds": [
+          "cautions:read",
+          "device-commands:receive",
+          "device-commands:request",
+          "friends:manage",
+          "friends:read",
+          "history:read",
+          "history:write",
+          "missions:progress",
+          "missions:read",
+          "recommendations:use",
+          "room-music:control",
+          "room-music:read",
+          "room-voice:receive",
+          "room-voice:transmit",
+          "rooms:interact",
+          "rooms:read",
+          "vehicle-location:report",
+          "vehicle-reports:read",
+          "vehicle-visits:report"
+        ]
+      },
+      {
+        "version": 3,
+        "sha256": "74e93e6fb3b374e627b572fe0a49de390fd276074a004f00a9ffac470964fe92",
+        "purposeIds": [
+          "cautions:read",
+          "device-commands:receive",
+          "device-commands:request",
+          "driving-score:report",
+          "friends:manage",
+          "friends:read",
+          "history:read",
+          "history:write",
+          "missions:progress",
+          "missions:read",
+          "recommendations:use",
+          "room-music:control",
+          "room-music:read",
+          "room-voice:receive",
+          "room-voice:transmit",
+          "rooms:interact",
+          "rooms:read",
+          "vehicle-location:report",
+          "vehicle-reports:read",
+          "vehicle-visits:report"
+        ],
+        "purposeRegistry": [
+          {
+            "id": "cautions:read",
+            "label": "주의 기록",
+            "dataCategories": [
+              "허용된 관측 주의 기록",
+              "출처와 관측 시각"
+            ],
+            "purpose": "본인 기록과 공유를 허용받은 주의 기록에서 내용과 관측 시각을 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "device-commands:receive",
+            "label": "명령 받기",
+            "dataCategories": [
+              "허용한 명령",
+              "전달 상태와 확인 상태"
+            ],
+            "purpose": "허용한 상대의 기기 명령을 받고, 처리 결과를 전달합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": true
+          },
+          {
+            "id": "device-commands:request",
+            "label": "명령 요청",
+            "dataCategories": [
+              "허용한 명령",
+              "전달 상태와 확인 상태"
+            ],
+            "purpose": "상대가 허용한 기기에 명령을 요청하고 처리 상태를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "driving-score:report",
+            "label": "코스 안전운전 점수 공유",
+            "dataCategories": [
+              "코스별 안전운전 점수",
+              "급가속·급감속 횟수",
+              "측정 가능·확정 여부"
+            ],
+            "purpose": "코스별 점수와 사건 횟수만 현재 같은 차에 탄 수락 멤버의 iPhone에 공유합니다. 원시 속도와 시간별 표본은 보내지 않습니다.",
+            "retention": "여행·차·코스 버전별 최신 한 건만 암호화 보관하며 여행 또는 차·코스 삭제 시 함께 삭제합니다.",
+            "withdrawal": "기능 공유 설정에서 끄면 이후 점수 전송이 차단됩니다. 기기의 로컬 점수와 기존 코스 완료는 유지됩니다.",
+            "refusal": "선택하지 않아도 기기 안의 안전운전 평가와 코스 완료는 사용할 수 있습니다. 같은 차 일행에게 점수를 공유하지 않습니다.",
+            "default": false
+          },
+          {
+            "id": "friends:manage",
+            "label": "친구 관리",
+            "dataCategories": [
+              "현재 친구 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "친구를 초대하거나 요청에 응답하고, 필요한 상대를 차단합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "friends:read",
+            "label": "친구 목록",
+            "dataCategories": [
+              "현재 친구 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "친구 목록과 초대 및 요청 상태를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "history:read",
+            "label": "여행 기록 보기",
+            "dataCategories": [
+              "허용된 여행 기록",
+              "방문과 경로 및 사진"
+            ],
+            "purpose": "본인 기록과 공유를 허용받은 방문, 경로, 사진을 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "history:write",
+            "label": "여행 기록 남기기",
+            "dataCategories": [
+              "허용된 여행 기록",
+              "방문과 경로 및 사진"
+            ],
+            "purpose": "직접 선택한 방문, 후기, 별점과 저장을 허용한 경로를 기록합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "missions:progress",
+            "label": "미션 진행 알리기",
+            "dataCategories": [
+              "현재 미션",
+              "직접 선택한 참여와 진행 상태"
+            ],
+            "purpose": "별도로 참여하고 기기 사용을 허용한 미션의 진행 상태를 전달합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "missions:read",
+            "label": "미션 보기",
+            "dataCategories": [
+              "현재 미션",
+              "직접 선택한 참여와 진행 상태"
+            ],
+            "purpose": "참여한 여행방의 미션과 진행 상태를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "recommendations:use",
+            "label": "추천",
+            "dataCategories": [
+              "명시 추천 조건",
+              "선택한 피드백"
+            ],
+            "purpose": "허용한 정보를 바탕으로 추천을 보고, 선택한 좋아요나 관심 없음을 반영합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-music:control",
+            "label": "방 음악 선택",
+            "dataCategories": [
+              "곡 제목",
+              "원곡 링크",
+              "현재 곡 상태"
+            ],
+            "purpose": "현재 DJ일 때 방에 공유할 곡을 선택하고 현재 곡 상태를 바꿉니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-music:read",
+            "label": "방 음악 보기",
+            "dataCategories": [
+              "곡 제목",
+              "원곡 링크",
+              "현재 곡 상태"
+            ],
+            "purpose": "음악 공유에 동의한 여행방의 현재 곡 제목과 원곡 링크를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-voice:receive",
+            "label": "방 음성 듣기",
+            "dataCategories": [
+              "현재 음성 프레임",
+              "송수신 상태"
+            ],
+            "purpose": "음성 공유에 동의한 여행방에서 상대의 음성을 듣습니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-voice:transmit",
+            "label": "방에 음성 보내기",
+            "dataCategories": [
+              "현재 음성 프레임",
+              "송수신 상태"
+            ],
+            "purpose": "음성 공유에 동의한 여행방에서 말하기 버튼을 누르는 동안 음성을 보냅니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "rooms:interact",
+            "label": "여행방 참여",
+            "dataCategories": [
+              "현재 여행방 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "여행방에 참여하거나 나가고, 허용된 역할과 신호, 투표를 사용합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "rooms:read",
+            "label": "여행방 보기",
+            "dataCategories": [
+              "현재 여행방 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "참여한 여행방과 받은 초대의 정보를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "vehicle-location:report",
+            "label": "위치 보내기",
+            "dataCategories": [
+              "보고 위치",
+              "관측 시각",
+              "정확도"
+            ],
+            "purpose": "위치 공유에 동의한 여행방에 기기에서 확인한 위치와 관측 시각, 정확도를 보냅니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "vehicle-reports:read",
+            "label": "방 기기 소식 보기",
+            "dataCategories": [
+              "공유를 허용받은 위치와 방문 정보",
+              "관측 시각과 정확도"
+            ],
+            "purpose": "서로 공유를 허용한 여행방 참여자의 위치와 방문 소식을 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "vehicle-visits:report",
+            "label": "방문 알리기",
+            "dataCategories": [
+              "확인된 방문 정보",
+              "승인된 코스 정보"
+            ],
+            "purpose": "방문 공유에 동의한 여행방에 승인된 코스의 확인된 방문을 알립니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          }
+        ]
+      },
+      {
+        "version": 4,
+        "sha256": "71562cdc23bc16f0872290ae45bbcf6965aab1c3aef381ae878be8c25d2ddbe6",
+        "purposeIds": [
+          "cautions:read",
+          "device-commands:receive",
+          "device-commands:request",
+          "driving-score:report",
+          "friends:manage",
+          "friends:read",
+          "history:read",
+          "history:write",
+          "missions:progress",
+          "missions:read",
+          "recommendations:use",
+          "room-music:control",
+          "room-music:read",
+          "room-voice:receive",
+          "room-voice:transmit",
+          "rooms:interact",
+          "rooms:read",
+          "vehicle-location:report",
+          "vehicle-reports:read",
+          "vehicle-visits:report"
+        ],
+        "purposeRegistry": [
+          {
+            "id": "cautions:read",
+            "label": "주의 기록",
+            "dataCategories": [
+              "허용된 관측 주의 기록",
+              "출처와 관측 시각"
+            ],
+            "purpose": "본인 기록과 공유를 허용받은 주의 기록에서 내용과 관측 시각을 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "device-commands:receive",
+            "label": "명령 받기",
+            "dataCategories": [
+              "허용한 명령",
+              "전달 상태와 확인 상태"
+            ],
+            "purpose": "허용한 상대의 기기 명령을 받고, 처리 결과를 전달합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": true
+          },
+          {
+            "id": "device-commands:request",
+            "label": "명령 요청",
+            "dataCategories": [
+              "허용한 명령",
+              "전달 상태와 확인 상태"
+            ],
+            "purpose": "상대가 허용한 기기에 명령을 요청하고 처리 상태를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "driving-score:report",
+            "label": "코스 안전운전 점수 공유",
+            "dataCategories": [
+              "코스별 안전운전 점수",
+              "급가속·급감속 횟수",
+              "측정 가능·확정 여부"
+            ],
+            "purpose": "코스별 점수와 사건 횟수는 현재 같은 차 일행에게 공유하고, 구간 경로 v2 여행의 참가 차 현재 운전자·동승자에게 완료한 코스 점수·평균·대결 결과를 공유합니다. 원시 속도와 시간별 표본은 보내지 않습니다.",
+            "retention": "같은 차 점수는 여행·차·코스 버전별 최신 한 건을 암호화 보관합니다. 대결용 최종 점수·승인 증명·확정 결과도 해당 여행 안에서 암호화 보관하며 현재 권한에 따라 공개하고 여행 삭제 시 삭제합니다.",
+            "withdrawal": "기능 공유 설정에서 끄면 이후 점수 전송과 기존 대결 점수·승자 공개가 차단됩니다. 기기의 로컬 점수와 기존 코스 완료는 유지됩니다. 다시 공유하려면 현재 설명 승인 뒤 최종 보고를 다시 보냅니다.",
+            "refusal": "선택하지 않아도 기기 안의 안전운전 평가와 코스 완료를 사용할 수 있고 여행 대결에는 자동 참가합니다. 보고하지 않은 점수나 승리를 만들지 않습니다.",
+            "default": false
+          },
+          {
+            "id": "friends:manage",
+            "label": "친구 관리",
+            "dataCategories": [
+              "현재 친구 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "친구를 초대하거나 요청에 응답하고, 필요한 상대를 차단합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "friends:read",
+            "label": "친구 목록",
+            "dataCategories": [
+              "현재 친구 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "친구 목록과 초대 및 요청 상태를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "history:read",
+            "label": "여행 기록 보기",
+            "dataCategories": [
+              "허용된 여행 기록",
+              "방문과 경로 및 사진"
+            ],
+            "purpose": "본인 기록과 공유를 허용받은 방문, 경로, 사진을 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "history:write",
+            "label": "여행 기록 남기기",
+            "dataCategories": [
+              "허용된 여행 기록",
+              "방문과 경로 및 사진"
+            ],
+            "purpose": "직접 선택한 방문, 후기, 별점과 저장을 허용한 경로를 기록합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "missions:progress",
+            "label": "미션 진행 알리기",
+            "dataCategories": [
+              "현재 미션",
+              "직접 선택한 참여와 진행 상태"
+            ],
+            "purpose": "별도로 참여하고 기기 사용을 허용한 미션의 진행 상태를 전달합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "missions:read",
+            "label": "미션 보기",
+            "dataCategories": [
+              "현재 미션",
+              "직접 선택한 참여와 진행 상태"
+            ],
+            "purpose": "참여한 여행방의 미션과 진행 상태를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "recommendations:use",
+            "label": "추천",
+            "dataCategories": [
+              "명시 추천 조건",
+              "선택한 피드백"
+            ],
+            "purpose": "허용한 정보를 바탕으로 추천을 보고, 선택한 좋아요나 관심 없음을 반영합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-music:control",
+            "label": "방 음악 선택",
+            "dataCategories": [
+              "곡 제목",
+              "원곡 링크",
+              "현재 곡 상태"
+            ],
+            "purpose": "현재 DJ일 때 방에 공유할 곡을 선택하고 현재 곡 상태를 바꿉니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-music:read",
+            "label": "방 음악 보기",
+            "dataCategories": [
+              "곡 제목",
+              "원곡 링크",
+              "현재 곡 상태"
+            ],
+            "purpose": "음악 공유에 동의한 여행방의 현재 곡 제목과 원곡 링크를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-voice:receive",
+            "label": "방 음성 듣기",
+            "dataCategories": [
+              "현재 음성 프레임",
+              "송수신 상태"
+            ],
+            "purpose": "음성 공유에 동의한 여행방에서 상대의 음성을 듣습니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "room-voice:transmit",
+            "label": "방에 음성 보내기",
+            "dataCategories": [
+              "현재 음성 프레임",
+              "송수신 상태"
+            ],
+            "purpose": "음성 공유에 동의한 여행방에서 말하기 버튼을 누르는 동안 음성을 보냅니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "rooms:interact",
+            "label": "여행방 참여",
+            "dataCategories": [
+              "현재 여행방 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "여행방에 참여하거나 나가고, 허용된 역할과 신호, 투표를 사용합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "rooms:read",
+            "label": "여행방 보기",
+            "dataCategories": [
+              "현재 여행방 상태",
+              "사용자가 선택한 항목"
+            ],
+            "purpose": "참여한 여행방과 받은 초대의 정보를 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "vehicle-location:report",
+            "label": "위치 보내기",
+            "dataCategories": [
+              "보고 위치",
+              "관측 시각",
+              "정확도"
+            ],
+            "purpose": "위치 공유에 동의한 여행방에 기기에서 확인한 위치와 관측 시각, 정확도를 보냅니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "vehicle-reports:read",
+            "label": "방 기기 소식 보기",
+            "dataCategories": [
+              "공유를 허용받은 위치와 방문 정보",
+              "관측 시각과 정확도"
+            ],
+            "purpose": "서로 공유를 허용한 여행방 참여자의 위치와 방문 소식을 확인합니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          },
+          {
+            "id": "vehicle-visits:report",
+            "label": "방문 알리기",
+            "dataCategories": [
+              "확인된 방문 정보",
+              "승인된 코스 정보"
+            ],
+            "purpose": "방문 공유에 동의한 여행방에 승인된 코스의 확인된 방문을 알립니다.",
+            "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+            "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+            "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+            "default": false
+          }
+        ]
+      }
+    ],
+    "nativePresentation": {
+      "defaultVersion": 2,
+      "supportedVersions": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "currentVersion": 5,
+      "currentAdditionalResponseFields": [
+        "approvedDisclosureVersion"
+      ]
+    }
+  },
+  "courseOriginalRead": {
+    "method": "GET",
+    "path": "/v1/studio/packs/{pack_id}/versions/{version}",
+    "pattern": "/v1/studio/packs/[a-z0-9][a-z0-9_-]{0,79}/versions/[1-9][0-9]{0,9}",
+    "versionMaximum": 2147483647,
+    "scope": "courses:read",
+    "ownerOnly": true,
+    "unavailableStatus": 404,
+    "responseFields": [
+      "schemaVersion",
+      "id",
+      "version",
+      "title",
+      "author",
+      "description",
+      "stops"
+    ],
+    "maximumBytes": 262144,
+    "minimumStops": 1,
+    "maximumStops": 3,
+    "checksum": "SHA-256 of exact response bytes; compare with own catalogue checksum",
+    "cacheControl": "private, no-store",
+    "authorization": "Current native account/grant/scope/slot/credential epoch/expiry revalidated under installation lock; current owner and actual post-publication restriction checked under pack lock. No pre-publication review prerequisite.",
+    "execution": "Read does not grant re-use rights or vehicle execution. Published versions are immediately readable without approval; actual report quarantine and explicit operator rejection remain closed.",
+    "consent": "Existing courses:read course data only; no expanded data categories or consent/disclosure revision. Legacy unreviewed published bytes follow the same post-publication restriction policy.",
+    "publicationPolicy": "immediate-with-post-publication-restrictions"
+  },
+  "courseRoutePreview": {
+    "method": "POST",
+    "path": "/v1/native/courses/{pack_id}/versions/{version}/route-preview",
+    "pattern": "/v1/native/courses/[a-z0-9][a-z0-9_-]{0,79}/versions/[1-9][0-9]{0,9}/route-preview",
+    "scope": "courses:read",
+    "versionMaximum": 2147483647,
+    "requestRequired": [
+      "checksum",
+      "points"
+    ],
+    "requestOptional": [],
+    "maximumBytes": 4096,
+    "maximumStops": 3,
+    "checksum": "Exact accessible published version SHA-256; ordered points must equal stored stop coordinates",
+    "responseFields": [
+      "distanceMeters",
+      "durationSeconds",
+      "path"
+    ],
+    "maximumPathPoints": 2000,
+    "cacheControl": "private, no-store",
+    "authorization": "Current mTLS NativePrincipal, grant, mandatory and course scopes, credential epoch, slot and expiry revalidated under installation lock before and after provider; current active creator, graph block and publication restrictions checked under graph and pack locks",
+    "consent": "Existing courses:read saved course coordinates only; no live location, new scope, disclosure or stored consent writes",
+    "execution": "Ephemeral driving road preview through existing bounded provider; no navigation or vehicle command"
+  }
+}

@@ -1,0 +1,16 @@
+// One versioned, variant-local constant; no host app BuildConfig dependency.
+def nativeModes = layout.buildDirectory.dir('generated/wegoh-native-build')
+def generateNativeBuildTypes = tasks.register('generateNativeBuildTypes') {
+    inputs.property('sourceTemplate', 'io.wegoh.app.nativeauth.NativeBuildType/v1')
+    outputs.dir(nativeModes)
+    doLast {
+        ['debug':true, 'release':false].each { mode, enabled ->
+            def output = nativeModes.get().file("${mode}/io/wegoh/app/nativeauth/NativeBuildType.kt").asFile
+            output.parentFile.mkdirs()
+            def source = "package io.wegoh.app.nativeauth\ninternal object NativeBuildType { const val DEBUG = ${enabled} }\n"
+            if (!output.isFile() || output.getText('UTF-8') != source) output.setText(source, 'UTF-8')
+        }
+    }
+}
+['debug','release'].each { mode -> android.sourceSets.getByName(mode).java.srcDir(nativeModes.map { it.dir(mode) }) }
+tasks.named('preBuild').configure { dependsOn(generateNativeBuildTypes) }

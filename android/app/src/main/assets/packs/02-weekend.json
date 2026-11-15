@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "weekend-drive",
+  "version": 1,
+  "title": "우리의 주말 코스",
+  "author": "WegoH",
+  "description": "세 장소를 순서대로 방문하는 경로",
+  "stops": [
+    {"id":"meeting","name":"출발 전 만남","latitude":37.4979,"longitude":127.0276,"radiusMeters":100,
+     "action":{"type":"chime","message":"만남의 장소에 도착했어요"}},
+    {"id":"break","name":"잠깐의 쉼","latitude":37.48544722,"longitude":127.03636666,"radiusMeters":100,
+     "poiId":"36khp37hh8gqcm5nqhe5","action":{"type":"chime","message":"두 번째 장소에 도착했어요"}},
+    {"id":"finish","name":"여정의 마지막","latitude":37.41275833,"longitude":127.09481944,"radiusMeters":100,
+     "poiId":"36khp2hdj2cfcm5nqhe3","action":{"type":"chime","message":"모든 장소 방문 완료"}}
+  ]
+}

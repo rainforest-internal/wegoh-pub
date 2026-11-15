@@ -1,0 +1,3 @@
+# Copy to local.properties only when that file does not already exist.
+# Enter the Kakao Native app key locally; keep sdk.dir and other existing values.
+wegohKakaoNativeAppKey=

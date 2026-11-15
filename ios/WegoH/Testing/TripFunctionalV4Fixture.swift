@@ -1,0 +1,314 @@
+#if DEBUG
+import Foundation
+
+enum TripFunctionalV4Fixture {
+    static func payload() -> [String: Any] {
+        try! JSONSerialization.jsonObject(with: Data(#"""
+{
+  "authorization": {
+    "authorizationVersion": 1,
+    "deviceId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "grantId": "cccccccccccccccccccccccccccccccc",
+    "revision": 2,
+    "expiresAt": 2000000000,
+    "approvedPurposes": [
+      "cautions:read",
+      "driving-score:report",
+      "friends:manage",
+      "friends:read",
+      "history:read",
+      "missions:read",
+      "recommendations:use",
+      "rooms:interact",
+      "rooms:read"
+    ],
+    "functionalDisclosureVersion": 4,
+    "functionalDisclosureSha256": "71562cdc23bc16f0872290ae45bbcf6965aab1c3aef381ae878be8c25d2ddbe6"
+  },
+  "disclosure": {
+    "version": 4,
+    "sha256": "71562cdc23bc16f0872290ae45bbcf6965aab1c3aef381ae878be8c25d2ddbe6",
+    "purposes": [
+      {
+        "id": "cautions:read",
+        "label": "주의 기록",
+        "dataCategories": [
+          "허용된 관측 주의 기록",
+          "출처와 관측 시각"
+        ],
+        "purpose": "본인 기록과 공유를 허용받은 주의 기록에서 내용과 관측 시각을 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "device-commands:receive",
+        "label": "명령 받기",
+        "dataCategories": [
+          "허용한 명령",
+          "전달 상태와 확인 상태"
+        ],
+        "purpose": "허용한 상대의 기기 명령을 받고, 처리 결과를 전달합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": true
+      },
+      {
+        "id": "device-commands:request",
+        "label": "명령 요청",
+        "dataCategories": [
+          "허용한 명령",
+          "전달 상태와 확인 상태"
+        ],
+        "purpose": "상대가 허용한 기기에 명령을 요청하고 처리 상태를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "driving-score:report",
+        "label": "코스 안전운전 점수 공유",
+        "dataCategories": [
+          "코스별 안전운전 점수",
+          "급가속·급감속 횟수",
+          "측정 가능·확정 여부"
+        ],
+        "purpose": "코스별 점수와 사건 횟수는 현재 같은 차 일행에게 공유하고, 구간 경로 v2 여행의 참가 차 현재 운전자·동승자에게 완료한 코스 점수·평균·대결 결과를 공유합니다. 원시 속도와 시간별 표본은 보내지 않습니다.",
+        "retention": "같은 차 점수는 여행·차·코스 버전별 최신 한 건을 암호화 보관합니다. 대결용 최종 점수·승인 증명·확정 결과도 해당 여행 안에서 암호화 보관하며 현재 권한에 따라 공개하고 여행 삭제 시 삭제합니다.",
+        "withdrawal": "기능 공유 설정에서 끄면 이후 점수 전송과 기존 대결 점수·승자 공개가 차단됩니다. 기기의 로컬 점수와 기존 코스 완료는 유지됩니다. 다시 공유하려면 현재 설명 승인 뒤 최종 보고를 다시 보냅니다.",
+        "refusal": "선택하지 않아도 기기 안의 안전운전 평가와 코스 완료를 사용할 수 있고 여행 대결에는 자동 참가합니다. 보고하지 않은 점수나 승리를 만들지 않습니다.",
+        "default": false
+      },
+      {
+        "id": "friends:manage",
+        "label": "친구 관리",
+        "dataCategories": [
+          "현재 친구 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "친구를 초대하거나 요청에 응답하고, 필요한 상대를 차단합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "friends:read",
+        "label": "친구 목록",
+        "dataCategories": [
+          "현재 친구 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "친구 목록과 초대 및 요청 상태를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "history:read",
+        "label": "여행 기록 보기",
+        "dataCategories": [
+          "허용된 여행 기록",
+          "방문과 경로 및 사진"
+        ],
+        "purpose": "본인 기록과 공유를 허용받은 방문, 경로, 사진을 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "history:write",
+        "label": "여행 기록 남기기",
+        "dataCategories": [
+          "허용된 여행 기록",
+          "방문과 경로 및 사진"
+        ],
+        "purpose": "직접 선택한 방문, 후기, 별점과 저장을 허용한 경로를 기록합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "missions:progress",
+        "label": "미션 진행 알리기",
+        "dataCategories": [
+          "현재 미션",
+          "직접 선택한 참여와 진행 상태"
+        ],
+        "purpose": "별도로 참여하고 기기 사용을 허용한 미션의 진행 상태를 전달합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "missions:read",
+        "label": "미션 보기",
+        "dataCategories": [
+          "현재 미션",
+          "직접 선택한 참여와 진행 상태"
+        ],
+        "purpose": "참여한 여행방의 미션과 진행 상태를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "recommendations:use",
+        "label": "추천",
+        "dataCategories": [
+          "명시 추천 조건",
+          "선택한 피드백"
+        ],
+        "purpose": "허용한 정보를 바탕으로 추천을 보고, 선택한 좋아요나 관심 없음을 반영합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-music:control",
+        "label": "방 음악 선택",
+        "dataCategories": [
+          "곡 제목",
+          "원곡 링크",
+          "현재 곡 상태"
+        ],
+        "purpose": "현재 DJ일 때 방에 공유할 곡을 선택하고 현재 곡 상태를 바꿉니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-music:read",
+        "label": "방 음악 보기",
+        "dataCategories": [
+          "곡 제목",
+          "원곡 링크",
+          "현재 곡 상태"
+        ],
+        "purpose": "음악 공유에 동의한 여행방의 현재 곡 제목과 원곡 링크를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-voice:receive",
+        "label": "방 음성 듣기",
+        "dataCategories": [
+          "현재 음성 프레임",
+          "송수신 상태"
+        ],
+        "purpose": "음성 공유에 동의한 여행방에서 상대의 음성을 듣습니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "room-voice:transmit",
+        "label": "방에 음성 보내기",
+        "dataCategories": [
+          "현재 음성 프레임",
+          "송수신 상태"
+        ],
+        "purpose": "음성 공유에 동의한 여행방에서 말하기 버튼을 누르는 동안 음성을 보냅니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "rooms:interact",
+        "label": "여행방 참여",
+        "dataCategories": [
+          "현재 여행방 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "여행방에 참여하거나 나가고, 허용된 역할과 신호, 투표를 사용합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "rooms:read",
+        "label": "여행방 보기",
+        "dataCategories": [
+          "현재 여행방 상태",
+          "사용자가 선택한 항목"
+        ],
+        "purpose": "참여한 여행방과 받은 초대의 정보를 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "vehicle-location:report",
+        "label": "위치 보내기",
+        "dataCategories": [
+          "보고 위치",
+          "관측 시각",
+          "정확도"
+        ],
+        "purpose": "위치 공유에 동의한 여행방에 기기에서 확인한 위치와 관측 시각, 정확도를 보냅니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "vehicle-reports:read",
+        "label": "방 기기 소식 보기",
+        "dataCategories": [
+          "공유를 허용받은 위치와 방문 정보",
+          "관측 시각과 정확도"
+        ],
+        "purpose": "서로 공유를 허용한 여행방 참여자의 위치와 방문 소식을 확인합니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      },
+      {
+        "id": "vehicle-visits:report",
+        "label": "방문 알리기",
+        "dataCategories": [
+          "확인된 방문 정보",
+          "승인된 코스 정보"
+        ],
+        "purpose": "방문 공유에 동의한 여행방에 승인된 코스의 확인된 방문을 알립니다.",
+        "retention": "기능 권한은 원 기기 연결 기한 안에서만 유효합니다. 목적 전용 공유 캐시는 철회 시 정리하며 원 여행 기록은 별도로 보관합니다.",
+        "withdrawal": "기기 공유 설정에서 끌 수 있습니다. 이후 접근과 전송을 막고 관련 공유 표시를 정리합니다.",
+        "refusal": "선택하지 않아도 기본 기기 연결은 유지됩니다. 이 기능은 사용할 수 없습니다.",
+        "default": false
+      }
+    ]
+  },
+  "readOnlyPurposes": [
+    "cautions:read",
+    "device-commands:receive",
+    "friends:manage",
+    "friends:read",
+    "history:read",
+    "missions:read",
+    "recommendations:use",
+    "rooms:interact",
+    "rooms:read"
+  ],
+  "approvedDisclosureVersion": 3
+}
+"""#.utf8)) as! [String: Any]
+    }
+}
+#endif

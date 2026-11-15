@@ -1,0 +1,16 @@
+[
+  "studio.html",
+  "studio.css",
+  "pleos-tokens.css",
+  "favicon.svg",
+  "api-docs.html",
+  "api-docs.js",
+  "api-docs.css",
+  "vendor/swagger-ui/swagger-ui-bundle.js",
+  "vendor/swagger-ui/swagger-ui.css",
+  "vendor/swagger-ui/licenses.html",
+  "enroll.css",
+  "native-access-wire.json",
+  "reviewer.html",
+  "reviewer.js"
+]

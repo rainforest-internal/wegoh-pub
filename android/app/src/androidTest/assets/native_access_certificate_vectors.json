@@ -1,0 +1,132 @@
+{
+  "syntheticOnly": true,
+  "validatedByAuthoritativePythonCodec": true,
+  "rows": [
+    {
+      "kind": "ecdsa-sha256",
+      "installationKeyId": "fa7fbaefacd5526f0865db6ab1d182a84ba124bfda0c0578ad03499dd427c423",
+      "response": {
+        "authorizationVersion": 1,
+        "operation": "CERTIFICATE_RECOVER",
+        "operationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "ISSUED",
+        "disposition": "CERTIFICATE_RECEIPT",
+        "serverTime": 1793315705,
+        "certificateReceipt": {
+          "certificatePem": "-----BEGIN CERTIFICATE-----\nMIICRDCCAeqgAwIBAgIBATAKBggqhkjOPQQDAjAkMSIwIAYDVQQDDBlTeW50aGV0\naWMgQ0EgZWNkc2Etc2hhMjU2MB4XDTI2MTAyOTIzMTQwNVoXDTI2MTAzMDIzMTUw\nNVowMTEvMC0GA1UEAwwmV2Vnb0gtZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVl\nZWVlZWUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDJUgF3yc0hycdT\nmiyr902d4U9GVS0P7dsogj1rBQpvtRwsM36sSAfqljKMBc3Fkg5BcI0+9ZWvzgMc\n7pJ5+iSgztiB9KOKDuDw56zOU0hmjpXWyBsZyw0k44+lG833vg52ZS2Qxk2LMKhf\nD5uAB4A0yoOtaEzzIKkYnfLt6i+f7rh8BSi1TVkUxWPPKNE+3IQ6ybBLbxswkPpd\nhoWYEJb5GzxM2DVDlHdT8UUOAVaZOglqh3dgWrmussU/DWOoGY2hUk3YOFrn7K05\nFZdvzxD3hITrYZLgrp1aJfYvZli4IhNZxYEblobhkW6mdJFkV0z12KoshTRdtY8U\nWLAq7OJJAgMBAAGjNTAzMAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgeAMBMG\nA1UdJQQMMAoGCCsGAQUFBwMCMAoGCCqGSM49BAMCA0gAMEUCIAXN4tGsqCisq+Lw\nCFbGr9ywkFVI/wjNAdwGT2/u4MjZAiEAqe0zfgSIeQUm+igmZEwxFrc64MwBZBkn\n2eAHsBGEimY=\n-----END CERTIFICATE-----\n",
+          "certificateSha256": "12b06254e6e3e2c2c886448875cfe8ab759da98570c9aae44aba5742a094d78a",
+          "installationKeyId": "fa7fbaefacd5526f0865db6ab1d182a84ba124bfda0c0578ad03499dd427c423",
+          "generation": 1,
+          "generationOperationId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expiresAt": 1793402105
+        }
+      }
+    },
+    {
+      "kind": "rsa-pss-sha256",
+      "installationKeyId": "fa7fbaefacd5526f0865db6ab1d182a84ba124bfda0c0578ad03499dd427c423",
+      "response": {
+        "authorizationVersion": 1,
+        "operation": "CERTIFICATE_RECOVER",
+        "operationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "ISSUED",
+        "disposition": "CERTIFICATE_RECEIPT",
+        "serverTime": 1793315705,
+        "certificateReceipt": {
+          "certificatePem": "-----BEGIN CERTIFICATE-----\nMIIDbzCCAiOgAwIBAgIBATBBBgkqhkiG9w0BAQowNKAPMA0GCWCGSAFlAwQCAQUA\noRwwGgYJKoZIhvcNAQEIMA0GCWCGSAFlAwQCAQUAogMCASAwJjEkMCIGA1UEAwwb\nU3ludGhldGljIENBIHJzYS1wc3Mtc2hhMjU2MB4XDTI2MTAyOTIzMTQwNVoXDTI2\nMTAzMDIzMTUwNVowMTEvMC0GA1UEAwwmV2Vnb0gtZWVlZWVlZWVlZWVlZWVlZWVl\nZWVlZWVlZWVlZWVlZWUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDJ\nUgF3yc0hycdTmiyr902d4U9GVS0P7dsogj1rBQpvtRwsM36sSAfqljKMBc3Fkg5B\ncI0+9ZWvzgMc7pJ5+iSgztiB9KOKDuDw56zOU0hmjpXWyBsZyw0k44+lG833vg52\nZS2Qxk2LMKhfD5uAB4A0yoOtaEzzIKkYnfLt6i+f7rh8BSi1TVkUxWPPKNE+3IQ6\nybBLbxswkPpdhoWYEJb5GzxM2DVDlHdT8UUOAVaZOglqh3dgWrmussU/DWOoGY2h\nUk3YOFrn7K05FZdvzxD3hITrYZLgrp1aJfYvZli4IhNZxYEblobhkW6mdJFkV0z1\n2KoshTRdtY8UWLAq7OJJAgMBAAGjNTAzMAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/\nBAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMCMEEGCSqGSIb3DQEBCjA0oA8wDQYJ\nYIZIAWUDBAIBBQChHDAaBgkqhkiG9w0BAQgwDQYJYIZIAWUDBAIBBQCiAwIBIAOC\nAQEAW5PhcxxsfMSOKkp8d0nLtExq7keyTFGYNlryfpSqSWhCDJs8PRO9S6UnOT8d\nmLxZJQQMfwPbdQDLnXfs4OqOg+jcbrPJbdS/kItbfnwUNONQrsjQwLDA7vHqZ3l7\nv4k7b5/lBNKkKeEgFzMCp2+fMeTtaFcEbIHpwoIeBFOd/VnpTtuErqD5UYEreZra\nncQ1zn+8SBnnGZAgUtigiHYB9JQytLnx8JUfbEracWq1Ktf1EDwtiZNUNxPlIPMK\naD/QZkn6QOkjMvB1BOeol2ViN2K3SyzD93a7y0crf4OTTkVDNMhBbXfv0LQjrbdT\nb1hYafFDaxleA3WGW8l85abcqw==\n-----END CERTIFICATE-----\n",
+          "certificateSha256": "33ecd4331a8d89299eb657d18d430dc45adcb2ee9cdbf5e9935a06e9072a6fc1",
+          "installationKeyId": "fa7fbaefacd5526f0865db6ab1d182a84ba124bfda0c0578ad03499dd427c423",
+          "generation": 1,
+          "generationOperationId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expiresAt": 1793402105
+        }
+      }
+    }
+  ],
+  "keyUsageCases": [
+    {
+      "kind": "absent",
+      "accepted": true,
+      "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+      "response": {
+        "authorizationVersion": 1,
+        "operation": "CERTIFICATE_RECOVER",
+        "operationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "ISSUED",
+        "disposition": "CERTIFICATE_RECEIPT",
+        "serverTime": 1793334807,
+        "certificateReceipt": {
+          "certificatePem": "-----BEGIN CERTIFICATE-----\nMIIC9DCCAdygAwIBAgIBATANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhTeW50\naGV0aWMgQ0Ytc2hhcGUgS1UgQ0EwHhcNMjYxMDMwMDQzMjI3WhcNMjcwMTI4MDQz\nMzI3WjAxMS8wLQYDVQQDDCZXZWdvSC1lZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVl\nZWVlZWVlZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANDm9H/PyF7Y\nh+OXZQ1fBbDD/h3hxElmk61LYZ8sEZg51la2K1mIxk+mw4krr1oyfnFo55iKwsbf\nivU5kCSyRKX8edBNthn+WtnhuGK8gyGoO7blgYXjFiqWscNU66ZhDux7SXk/V6FY\nYuzBxpN9Asr4Ea3jtxJt2VTp8Q6zp4jfiRc06h6aprbIh5wwgLLij67cHtfFzQRp\nQcrifsHw2rwNiuhu1O1E8zEfW01umiNWeQNX0dlyCH+AkfMn6hdU25IOm1D7/r7l\nxDzz8LwiOLCehv7uwUCyq+XjO1YaxYEDu5QD/RJPfIf6VNOLMf8+aXDXDn3IgQ5y\nZ5ICJl9ItikCAwEAAaMlMCMwDAYDVR0TAQH/BAIwADATBgNVHSUEDDAKBggrBgEF\nBQcDAjANBgkqhkiG9w0BAQsFAAOCAQEAlLImpnIwiWJAotBshV3PumwzHiX21qFj\nDQq/mo4y4FUA9weoR4Fo+L8AC0aWA0LP23HqyFoFkV4hg7FCOfhJx7H+HH1jFIFH\nVoyCq0lwcUIRtdUBiktI7BiV8Qujkv6659l5LFoEM52IBDPdU2npQWq4MS77lI0P\nECrqKK6PZISxDqEtK3RiK23dISUt13T6zXy2vdGB92rS/7/ZPKKjoV/LftIULSJ5\nqVoS2BKYEamQnxG7oO1Yq8+zdE/Yxg8Rpjl3JX6RZebGq9/tVr3+rPed4NLGZuKN\njF8Amn+0JxJ8rzaiQWb4SwssIEbMvo7fhltbfieSfSegrLrPjKvQsw==\n-----END CERTIFICATE-----\n",
+          "certificateSha256": "3f8a45a797ca7cf8fe3f53306e994915c52373f70a66856229ef3139cb529dbd",
+          "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+          "generation": 1,
+          "generationOperationId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expiresAt": 1801110807
+        }
+      }
+    },
+    {
+      "kind": "missing-digital-signature",
+      "accepted": false,
+      "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+      "response": {
+        "authorizationVersion": 1,
+        "operation": "CERTIFICATE_RECOVER",
+        "operationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "ISSUED",
+        "disposition": "CERTIFICATE_RECEIPT",
+        "serverTime": 1793334807,
+        "certificateReceipt": {
+          "certificatePem": "-----BEGIN CERTIFICATE-----\nMIIDBDCCAeygAwIBAgIBAjANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhTeW50\naGV0aWMgQ0Ytc2hhcGUgS1UgQ0EwHhcNMjYxMDMwMDQzMjI3WhcNMjcwMTI4MDQz\nMzI3WjAxMS8wLQYDVQQDDCZXZWdvSC1lZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVl\nZWVlZWVlZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANDm9H/PyF7Y\nh+OXZQ1fBbDD/h3hxElmk61LYZ8sEZg51la2K1mIxk+mw4krr1oyfnFo55iKwsbf\nivU5kCSyRKX8edBNthn+WtnhuGK8gyGoO7blgYXjFiqWscNU66ZhDux7SXk/V6FY\nYuzBxpN9Asr4Ea3jtxJt2VTp8Q6zp4jfiRc06h6aprbIh5wwgLLij67cHtfFzQRp\nQcrifsHw2rwNiuhu1O1E8zEfW01umiNWeQNX0dlyCH+AkfMn6hdU25IOm1D7/r7l\nxDzz8LwiOLCehv7uwUCyq+XjO1YaxYEDu5QD/RJPfIf6VNOLMf8+aXDXDn3IgQ5y\nZ5ICJl9ItikCAwEAAaM1MDMwDAYDVR0TAQH/BAIwADATBgNVHSUEDDAKBggrBgEF\nBQcDAjAOBgNVHQ8BAf8EBAMCBSAwDQYJKoZIhvcNAQELBQADggEBAFzP6GngBjyK\nsA+mZXBjHlNdFW7wvKveyAbYg/ZqzmKL06/GMPQ2GnV2L1DVlIpOG8nK1joYcgse\nV2IkZWvceZLaxIcRbcIMY5N7zj7HOaukdwlE28v9PIrQQRiYXIISRGmvsQjEfAeo\ng5ConAJ8GnfrIGRFF2rdATGtQwfCU1bqcLrdssXWV4Y6re03psqPLYcB1BG6ompB\npWLaJBR8ab/eejTCYkMrjhAc3MUNXGGWZSpN/+mPU8me+X3TQVRbgk0oD2FqIGhV\nu9n7V4s89m9AGGNeI2tiRd3JetdDUmy+CefY5HeYOzNs3J0IY2niNZGy1doLy8lO\nlm9Sb1j6Z1Y=\n-----END CERTIFICATE-----\n",
+          "certificateSha256": "ff92117af64a8895033828211140f3171de07a60524c50b591d8e8c4b546267b",
+          "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+          "generation": 1,
+          "generationOperationId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expiresAt": 1801110807
+        }
+      }
+    },
+    {
+      "kind": "certificate-signing",
+      "accepted": false,
+      "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+      "response": {
+        "authorizationVersion": 1,
+        "operation": "CERTIFICATE_RECOVER",
+        "operationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "ISSUED",
+        "disposition": "CERTIFICATE_RECEIPT",
+        "serverTime": 1793334807,
+        "certificateReceipt": {
+          "certificatePem": "-----BEGIN CERTIFICATE-----\nMIIDBDCCAeygAwIBAgIBAzANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhTeW50\naGV0aWMgQ0Ytc2hhcGUgS1UgQ0EwHhcNMjYxMDMwMDQzMjI3WhcNMjcwMTI4MDQz\nMzI3WjAxMS8wLQYDVQQDDCZXZWdvSC1lZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVl\nZWVlZWVlZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANDm9H/PyF7Y\nh+OXZQ1fBbDD/h3hxElmk61LYZ8sEZg51la2K1mIxk+mw4krr1oyfnFo55iKwsbf\nivU5kCSyRKX8edBNthn+WtnhuGK8gyGoO7blgYXjFiqWscNU66ZhDux7SXk/V6FY\nYuzBxpN9Asr4Ea3jtxJt2VTp8Q6zp4jfiRc06h6aprbIh5wwgLLij67cHtfFzQRp\nQcrifsHw2rwNiuhu1O1E8zEfW01umiNWeQNX0dlyCH+AkfMn6hdU25IOm1D7/r7l\nxDzz8LwiOLCehv7uwUCyq+XjO1YaxYEDu5QD/RJPfIf6VNOLMf8+aXDXDn3IgQ5y\nZ5ICJl9ItikCAwEAAaM1MDMwDAYDVR0TAQH/BAIwADATBgNVHSUEDDAKBggrBgEF\nBQcDAjAOBgNVHQ8BAf8EBAMCAoQwDQYJKoZIhvcNAQELBQADggEBAIS/G+cO55Y1\nc3FYJ8N2W1Pl6EF66r9/iYLUNfVy3+44lYsTTVyj/KE+Ly8895n9+jvMndGDvnz/\nHaT14QAD9jwIDagStnwc7tZZ2bumZPJG3fMArRL6HAdeAcgIYzhHiuZiCoaEHuf+\nW5zoKRTSui/pTug+veWRJEM3t8DfDpQX6cTZLLzIB6DE6z4Id2B1kVgpO8T9m8J+\nBXlbAQQyJ67ezgRDUIuN6m7v+CsvV0slQueyZxfjhLf2MLTzz/ONVsQK3us9rSId\nnTkmDRwMD7nLjMtOq2Cc3XN2br5nRLBBuUiVA1dO4fUSDFNMA3+t1McXlNp7FjyR\n9wf4TFGGlEY=\n-----END CERTIFICATE-----\n",
+          "certificateSha256": "28af1255ae2c95a82f78d7243666a27c7593b3eff98f4c56378b6513441620b8",
+          "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+          "generation": 1,
+          "generationOperationId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expiresAt": 1801110807
+        }
+      }
+    },
+    {
+      "kind": "crl-signing",
+      "accepted": false,
+      "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+      "response": {
+        "authorizationVersion": 1,
+        "operation": "CERTIFICATE_RECOVER",
+        "operationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "ISSUED",
+        "disposition": "CERTIFICATE_RECEIPT",
+        "serverTime": 1793334807,
+        "certificateReceipt": {
+          "certificatePem": "-----BEGIN CERTIFICATE-----\nMIIDBDCCAeygAwIBAgIBBDANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhTeW50\naGV0aWMgQ0Ytc2hhcGUgS1UgQ0EwHhcNMjYxMDMwMDQzMjI3WhcNMjcwMTI4MDQz\nMzI3WjAxMS8wLQYDVQQDDCZXZWdvSC1lZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVl\nZWVlZWVlZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANDm9H/PyF7Y\nh+OXZQ1fBbDD/h3hxElmk61LYZ8sEZg51la2K1mIxk+mw4krr1oyfnFo55iKwsbf\nivU5kCSyRKX8edBNthn+WtnhuGK8gyGoO7blgYXjFiqWscNU66ZhDux7SXk/V6FY\nYuzBxpN9Asr4Ea3jtxJt2VTp8Q6zp4jfiRc06h6aprbIh5wwgLLij67cHtfFzQRp\nQcrifsHw2rwNiuhu1O1E8zEfW01umiNWeQNX0dlyCH+AkfMn6hdU25IOm1D7/r7l\nxDzz8LwiOLCehv7uwUCyq+XjO1YaxYEDu5QD/RJPfIf6VNOLMf8+aXDXDn3IgQ5y\nZ5ICJl9ItikCAwEAAaM1MDMwDAYDVR0TAQH/BAIwADATBgNVHSUEDDAKBggrBgEF\nBQcDAjAOBgNVHQ8BAf8EBAMCAYIwDQYJKoZIhvcNAQELBQADggEBAASgDskAs5NT\nWgjuG5ZTVmDclY//P4k4Vd5T1k+zn0E7Jr3oa7jSPSI6g6RESiw/pokhYKwzMpEZ\nZVO12orMjhUODUGROZsASI30qg/NGAiNEhCPxLYnguN4Nnuodgn5FEwNAvnZmmTP\nSATSPxvAlStFDs6a2LD1L6eDf0cuZMy675F4s8aVoCWh0l+3cxaXAn2uBx4NZFhi\nFk8ZCAFrwFLOSaVeDMF1GOQQchDWMa+H2TZ4mo6XT75DZl5D4d6YO4bQXVgFTtKg\nPAVf4aDTwEgEFIQad8XkAjpzJ0rnp5VbISgB9fMP4OExt95/QoKkfXztiqkq+PT9\nqpsN4HcyaA8=\n-----END CERTIFICATE-----\n",
+          "certificateSha256": "2b0019cafd1d3e018c65674af1558a0a1fa4e5dd128ee4001bf63c0895252f05",
+          "installationKeyId": "0f283c5a5250651429b56950806021bef5e18adae2618fc0270206bb580d4ffe",
+          "generation": 1,
+          "generationOperationId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "expiresAt": 1801110807
+        }
+      }
+    }
+  ]
+}

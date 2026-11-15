@@ -1,0 +1,11 @@
+"""Actual service composition, shared by main and isolated issuer entrypoints."""
+from native_authorization import NativeAuthorization
+from native_access_renewal import NativeAccessRenewal
+from native_access_browser import NativeAccessBrowser
+from native_access_revocation import NativeAccessRevocation
+from native_access_reauthorization import NativeAccessReauthorization
+from native_access_recovery import NativeAccessRecovery
+from native_access_legacy import NativeAccessLegacy
+
+class NativeAuthorizationRuntime(NativeAccessRevocation,NativeAccessBrowser,NativeAccessRenewal,NativeAccessReauthorization,NativeAccessRecovery,NativeAccessLegacy,NativeAuthorization):
+    pass

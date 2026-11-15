@@ -1,0 +1,3 @@
+extension APIKeys {
+    static let mapAPIKey: String? = nil
+}

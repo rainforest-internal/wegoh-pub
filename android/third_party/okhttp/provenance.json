@@ -1,0 +1,14 @@
+{
+  "component": "com.squareup.okhttp3:okhttp",
+  "version": "4.12.0",
+  "purpose": "SDK-owned read-only WSS with platform trust/hostname, TLS1.3 and existing Keystore mTLS",
+  "sourceUrl": "https://raw.githubusercontent.com/square/okhttp/parent-4.12.0/LICENSE.txt",
+  "license": "Apache-2.0",
+  "licenseSha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+  "retrievedAt": "2026-10-30T00:10:41.907240+00:00",
+  "references": [
+    "https://github.com/square/okhttp/blob/parent-4.12.0/samples/guide/src/main/java/okhttp3/recipes/WebSocketEcho.java",
+    "https://github.com/square/okhttp/blob/parent-4.12.0/okhttp/src/main/kotlin/okhttp3/WebSocketListener.kt"
+  ],
+  "notes": "Pinned dependency; default trust/hostname retained, no HTTP logging/cookies/authenticator/interceptor, no automatic reconnect. Consumers of file AAR declare the same Maven runtime dependency."
+}

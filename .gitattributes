@@ -1,0 +1,11 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.apk binary
+*.jar binary
+*.wav binary
+*.ttf binary
+*.sh text eol=lf
+gradlew text eol=lf
+android/third_party/asta-sans/OFL.txt -whitespace
+server/web/pleos-tokens.css -text

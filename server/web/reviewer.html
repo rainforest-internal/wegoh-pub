@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>심사자 차량 연결 - WegoH</title><link rel="icon" href="/reviewer/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/reviewer/assets/pleos-tokens.css"><link rel="stylesheet" href="/reviewer/assets/studio.css"><link rel="stylesheet" href="/reviewer/assets/enroll.css"><script src="/reviewer/assets/reviewer.js" defer></script></head>
+<body><a class="skip-link" href="#enrollment-main">본문으로 이동</a>
+<main id="enrollment-main" tabindex="-1"><h1 id="enrollment-title">심사자 차량 연결</h1><p id="enrollment-status" role="status" aria-live="polite">확인하고 있습니다.</p>
+<form id="reviewer-login-form" class="pairing-card" hidden><label for="reviewer-email">심사용 이메일</label><p>심사용 이메일 주소를 입력하면 바로 시작합니다.</p><div class="code-entry"><input id="reviewer-email" type="email" autocomplete="email" spellcheck="false" maxlength="254" required><button type="submit">시작</button></div></form>
+<section id="reviewer-account" hidden><p id="enrollment-account"></p><button id="reviewer-logout" type="button" class="secondary">로그아웃</button></section>
+<form id="enrollment-code-form" hidden><label for="enrollment-code">차량에 표시된 코드 또는 QR 링크</label><div class="code-entry"><input id="enrollment-code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="200" required><button type="submit">확인</button></div></form>
+<section id="enrollment-detail" class="pairing-card" hidden aria-labelledby="enrollment-name"><h2 id="enrollment-name"></h2><div id="enrollment-consent" hidden>
+<p id="enrollment-code-comparison" class="comparison-code" aria-label="차량 확인 코드"></p>
+<p>차량에 심사자 계정을 연결합니다. 연결은 최대 7일간 유효합니다.</p>
+<div id="enrollment-scopes" aria-label="연결할 정보"></div>
+<section class="remember-choice"><label class="connection-choice"><input id="enrollment-remember" type="checkbox"><strong>로그인 유지</strong></label>
+<p id="enrollment-remember-disclosure"></p></section>
+<p class="consent-boundary">위치, 친구, 음성, 차량 제어 권한은 포함하지 않습니다.</p>
+</div><div class="enrollment-actions"><button id="enrollment-approve" type="button">연결</button><button id="enrollment-cancel" type="button" class="secondary">취소</button></div></section></main></body></html>

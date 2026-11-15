@@ -1,0 +1,48 @@
+"""Explicit LIVE11 report purposes; no control/enrollment or physical evidence claim."""
+from api_doc_shared import entry,response,obj,s,n,b,arr,ref,nullable,TIME,READ,BROWSER,NATIVE
+from api_doc_models import IDENT,ACCOUNT,CHECK
+
+TAG='18 기기 보고와 수신'
+strict=lambda fields,description:dict(obj(fields,description),additionalProperties=False)
+REV=n('이 목적의 현재 revision. 최초0, 다른 목적의 revision과 다릅니다.',minimum=0,maximum=2147483647)
+PERIOD=n('사용자가 선택한 기간. 기기/방 만료를 넘지 않습니다.',enum=[1,4,12,24])
+PURPOSES=strict({'location':b('이 기기의 위치 보고 쓰기. 기존 읽기와 별도 기본false.'),'visits':b('이 기기의 수동 방문 보고 쓰기. 위치/trace 저장 동의가 아닙니다.')},'새 기기 쓰기 목적 두 개를 각각 선택합니다.')
+ROOT='/v1/devices/{device}'
+ROOM='/v1/social/rooms/{room}'
+COMMON={'eventId':dict(IDENT,description='새 명시 관측/확인에 만든 hex32. 같은 body 응답 유실에 같은 값만 재사용.'),'devicePermissionRevision':REV,'roomRevision':REV,'capturedAt':dict(TIME,description='실제 client 관측 시각. 신규 보고는 미래30초/과거5분 이내; 현재 시각을 과거 실행으로 만들지 않습니다.')}
+BODY={
+ ('put',ROOM+'/report-receiving'):strict({'revision':REV,'joinedAt':TIME,'receiveLocation':b('본인 웹 계정의 현재 방 친구 위치 수신. Native 기기/쓰기를 허용하지 않습니다.'),'receiveVisits':b('본인 웹 계정의 현재 방 친구 수동 방문 수신.'),'expiresInHours':PERIOD},'기기 없는 웹 친구도 명시 선택하는 별도 수신 목적. deviceId/기기권한은 요구/변경하지 않습니다.'),
+ ('put',ROOT+'/reporting-permissions'):strict({'revision':REV,'purposes':PURPOSES,'expiresInHours':PERIOD},'본인 명시 기기 보고 허용. false는 stale-safe 철회.'),
+ ('put',ROOM+'/device-reporting'):strict({'deviceId':IDENT,'revision':REV,'joinedAt':dict(TIME,description='현재 GET roomReporting.joinedAt. 재입장 전 held 요청은 새 동의가 아닙니다.'),'devicePermissionRevision':REV,'shareLocation':b('선택한 본인 기기 위치를 현재 방에 송신.'),'shareVisits':b('선택한 본인 기기 수동 방문을 현재 방에 송신.'),'receiveLocation':b('선택한 본인 Native 기기가 현재 방 친구 위치를 수신. 웹 수신은별도.'),'receiveVisits':b('선택한 본인 Native 기기가 현재 방 친구 방문을 수신. 웹 수신은별도.'),'expiresInHours':PERIOD},'기존 status/location·기기별 쓰기 목적·현재 친구/멤버/차단·기간 교집합.'),
+ ('post','/v1/native/rooms/{room}/reports/location'):strict(dict(COMMON,latitude={'type':'number','minimum':-90,'maximum':90,'description':'기기가 실제 보고한 유한 위도. 서버가 물리 GPS를 인증하지 않습니다.'},longitude={'type':'number','minimum':-180,'maximum':180,'description':'기기가 실제 보고한 유한 경도.'},accuracyMeters={'type':['number','null'],'minimum':0,'maximum':10000,'description':'공급자가 제공한 미터 오차 또는 null. SDK confidence 변환·검증 정확도 주장이 아닙니다.'}),'현재 개인 기기의 위치 보고. 계정/출처/nonce/SDK 증명 추가필드는 거절.'),
+ ('post','/v1/native/rooms/{room}/reports/visits'):strict(dict(COMMON,courseId=s('현재 방의 승인된 정확 코스ID.',pattern='^[A-Za-z0-9_-]{1,80}$'),courseVersion=n('현재 방의 승인된 동일 불변 버전.',minimum=1,maximum=2147483647),checkpoint=n('실제 승인 코스의1-based 장소 순번.',minimum=1,maximum=3)),'사용자 수동 확인. 실제 도착/GPS/trace/후기 적재가 아닙니다.')}
+META={'eventId':IDENT,'capturedAt':TIME,'receivedAt':dict(TIME,description='원 수신의 실제 서버 시각. 재시도는 원값을 유지.'),'stale':b('실제 capturedAt 기준60초를 지났는지. stale도 최신 위치로 가장하지 않습니다.'),'source':s('device-reported 또는 user-confirmed. 물리/제조사 검증 주장이 아닙니다.',enum=['device-reported','user-confirmed']),'accuracyVerified':{'const':False,'description':'실측 정확도를 서버가 검증하지 않았습니다.'},'physicalArrivalVerified':{'const':False,'description':'실제 차량 도착을 인증하지 않습니다.'}}
+MODELS={
+ 'VehicleReceiving':obj({'roomId':IDENT,'revision':REV,'joinedAt':TIME,'expiresAt':nullable(TIME),'serverNow':TIME,'receiveLocation':b('현재 웹 계정의 위치 수신 교집합.'),'receiveVisits':b('현재 웹 계정의 방문 수신 교집합.')},'기기0인 웹 사용자도 사용합니다. Native 기기 동의와 별도.'),
+ 'VehicleLocation':obj(dict(META,latitude={'type':'number','minimum':-90,'maximum':90,'description':'실제 client 보고 위도.'},longitude={'type':'number','minimum':-180,'maximum':180,'description':'실제 client 보고 경도.'},accuracyMeters={'type':['number','null'],'minimum':0,'maximum':10000,'description':'미확인 오차는null, SDK confidence를 미터로 변환하지 않음.'}),'현재 허용된 최신 위치 1개.'),
+ 'VehicleVisit':obj(dict(META,courseId=s('현재 방의 승인 코스.'),courseVersion=n('불변 코스 버전.',minimum=1),checkpoint=n('직접 확인한1-based 장소.',minimum=1,maximum=3),checksum=CHECK),'현재 허용된 최신 수동 방문 1개. 기록/trace를 자동 저장하지 않습니다.'),
+ 'VehicleRoomReporting':obj({'roomId':IDENT,'deviceId':IDENT,'receiverDeviceId':nullable(dict(IDENT,description='현재 Native 수신 대상으로 명시 선택한 한 기기. 없으면null.')),'revision':REV,'joinedAt':TIME,'expiresAt':nullable(TIME),'shareLocation':b('현재 기기 목적/epoch까지 유효한 송신.'),'shareVisits':b('현재 기기 목적/epoch까지 유효한 수동 방문 송신.'),'receiveLocation':b('현재 방에 저장한 본인 수신 목적.'),'receiveVisits':b('현재 방에 저장한 본인 수신 목적.')},'원 grant nonce/인증서/토큰은 반환하지 않습니다.'),
+ 'VehicleSnapshot':obj({'authorizationVersion':dict(type='integer',const=1,description='현재 단일 공개 인증 계약 버전입니다.'),'authority':dict(type='string',const='native-functional',description='보고 허용의 정본은 현재 개인 연결의 기능 동의이며 이전 reporting-permissions 저장소가 아닙니다.'),'functionalRevision':dict(REV,description='현재 개인 연결의 기능 동의 revision입니다. 보고 본문의 functionalRevision과 devicePermissionRevision은 이 정본을 사용합니다.'),'deviceId':IDENT,'name':s('본인 현재 기기 이름. online 증명이 아닙니다.'),'revision':REV,'expiresAt':TIME,'serverNow':TIME,'reporting':PURPOSES,'reportingExpiresAt':nullable(TIME),'roomReporting':nullable(ref('VehicleRoomReporting')),'latestLocation':nullable(ref('VehicleLocation')),'latestVisit':nullable(ref('VehicleVisit')),'supportedControlActions':dict(arr(s('검증된 실제 adapter action.'),'현재 빈 목록. 공조 제어 지원 없음.'),maxItems=0),'requests':{'type':'array','const':[],'maxItems':0,'description':'현재 항상 빈 배열. 실제 제어 adapter/명령/ACK 모델이 구현되지 않아 항목을 만들지 않습니다.'}},'본인 보고 상태. 자료 없음은null이고 가짜 값/최근 관측을 만들지 않습니다.'),
+ 'VehicleReports':obj({'roomId':IDENT,'serverNow':TIME,'reports':arr(obj({'accountId':ACCOUNT,'name':s('현재 친구 계정 표시이름.'),'deviceId':IDENT,'location':nullable(ref('VehicleLocation')),'visit':nullable(ref('VehicleVisit'))},'현재 양측 송수신·친구·멤버·차단을 통과한 기기 최신 보고.'),'교집합이 없거나 철회되면 빈 목록.')},'현재 방 친구 위치/방문 공급원. 과거 동의로 보고를 되살리지 않습니다.'),
+ 'VehicleReceipt':obj({'eventId':IDENT,'status':s('accepted 또는 동일 body duplicate.',enum=['accepted','duplicate']),'receivedAt':TIME,'latest':b('이 이벤트가 현재 최신인지. 중복이 새 관측을 만들지 않습니다.')},'원 수신 시각과 멱등 결과.')}
+ERRORS=['400','401','403','404','409','413','429','503']
+OPS={}
+def add(method,path,summary,model,example=None,native=False,effects=None):
+ OPS[(method,path)]=entry(TAG,summary,(NATIVE if native else READ if method=='get' else BROWSER)+' 현재 본인 기기·방 목적/멤버/차단/기간을 검증합니다. 기존 rooms 읽기는 새 쓰기 동의가 아닙니다.','본인 기기 GET→명시 목적/기간 선택→현재 roomReporting joinedAt/revision→양측 송수신 선택→현재 정본 GET.',effects or 'GCM 목적/grant 또는 room/device/kind별 최신 보고만 변경하고 rooms/devices/vehicle 무효화를 전달합니다. trace/history 자동 저장·차량 제어는 없습니다.','409는 현재 정본을 다시 읽고 사용자가 선택합니다. 관측 응답 유실은 같은eventId/동일body만 재전송하며 이전승인/시각을 새것으로 바꾸지 않습니다.',{'200':response(ref(model),'현재 정본. 실제 GPS/도착/차량 제어 검증이 아닙니다.')},ERRORS,example=example,notes='기본false·탈퇴/rejoin/철회 뒤 옛 grant 복원 금지. SDK confidence는미터가 아닙니다. 실제 제어 capability는빈값, 인증서/등록/Keystore lifecycle변경없음.')
+add('get',ROOT+'/vehicle-domain','본인 기기의 보고 목적과 선택 방 최신값 읽기','VehicleSnapshot',effects='DB쓰기없이 본인 현재 목적과 실제 최신값만 계산합니다. roomId가 없으면 방 보고는null.')
+RETIRED=('본인 기기 보고 허용은 현재 기능 공유(PUT /v1/devices/{device}/functional-permissions)에서 vehicle-location:report 또는 vehicle-visits:report를 직접 선택·해제합니다.',
+ '보고 동의·기기 목적·방 보고를 바꾸지 않습니다. 본인 소유 기기와 세션·Origin/CSRF를 확인한 뒤 항상 HTTP409 detail="Use current functional permissions"로 끝납니다.',
+ '409를 성공이나 일시 오류로 보고 재시도하지 않습니다. 현재 기능 공유 GET을 읽고 사용자가 선택합니다.')
+OPS[('put',ROOT+'/reporting-permissions')]=entry(TAG,'이전 보고 권한 변경 경로 확인',BROWSER+' 경로의 기기를 현재 계정이 소유해야 합니다.',*RETIRED,{},ERRORS,example={'revision':0,'purposes':{'location':False,'visits':False},'expiresInHours':1},notes='본문은 revision·purposes·expiresInHours 세 키만 받으며 형식 오류는 400, 4096바이트 초과는 413입니다. 요청 한도는 계정당 분당 30회입니다.')
+OPS[('delete',ROOT+'/reporting-permissions/{purpose}')]=entry(TAG,'이전 보고 권한 철회 경로 확인',BROWSER+' 경로의 기기를 현재 계정이 소유해야 합니다.',*RETIRED,{},ERRORS)
+add('put',ROOM+'/device-reporting','현재 방의 본인 기기 송신과 본인 수신을 각각 선택','VehicleSnapshot',{'deviceId':'1'*32,'revision':0,'joinedAt':'2026-10-28T00:00:00Z','devicePermissionRevision':1,'shareLocation':True,'shareVisits':False,'receiveLocation':False,'receiveVisits':False,'expiresInHours':1})
+OPS[('delete',ROOM+'/device-reporting')]=entry(TAG,'본인 방의 모든 기기 송수신 목적 철회',BROWSER+' 현재 본인 방 멤버만.','명시 철회→새 GET은 해당 보고를 제외합니다.','옛 grant와 본인 최신 보고를 폐기하고 현재 방에 invalidate합니다.','stale revision으로 철회를 막지 않습니다.',{'200':response(obj({'status':{'const':'revoked','description':'실제 서버 철회.'}},'명시 철회 결과.'),'철회됨.')},ERRORS)
+add('get',ROOM+'/device-reports','현재 친구의 양측 동의된 최신 위치·방문 수신','VehicleReports',effects='DB쓰기없이 현재 본인 수신·상대 송신·친구·멤버·기간의 교집합만 반환합니다.')
+add('get','/v1/device/vehicle-domain','개인 Native 기기의 본인 보고 상태 읽기','VehicleSnapshot',native=True,effects='본인 현재 보고 목적과 room 메타만 조회하며 쓰기 허용을 자동 변경하지 않습니다.')
+add('get','/v1/native/rooms/{room}/device-reports','현재 기기 수신 목적과 방별 수신 교집합 읽기','VehicleReports',native=True,effects='현재 vehicle-reports:read와 이 기기에 명시 선택한 방별 수신 목적을 요구합니다. rooms:read는 이 읽기의 선행 기능 목적이 아닙니다.')
+for kind,model,extra in [('location','VehicleReceipt',{'latitude':37.5,'longitude':127.0,'accuracyMeters':None}),('visits','VehicleReceipt',{'courseId':'synthetic-course','courseVersion':1,'checkpoint':1})]:
+ add('post','/v1/native/rooms/{room}/reports/'+kind,'개인 기기의 명시 허용된 '+('위치' if kind=='location'else'수동 방문')+' 보고',model,dict(eventId='2'*32,devicePermissionRevision=1,roomRevision=1,capturedAt='2026-10-28T00:00:00Z',**extra),native=True)
+
+add('get',ROOM+'/report-receiving','기기 없는 웹 계정도 현재 방 수신 상태 읽기','VehicleReceiving',effects='기기 목록/Native 권한/위치를 쓰지 않고 본인 현재 웹 수신만조회.')
+add('put',ROOM+'/report-receiving','본인 웹의 친구 위치·방문 수신을 각각 명시 선택','VehicleReceiving',{'revision':0,'joinedAt':'2026-10-28T00:00:00Z','receiveLocation':True,'receiveVisits':False,'expiresInHours':1},effects='본인 웹 수신 목적과기간만변경. Native 기기 생성/쓰기/기기별 수신 grant를 변경하거나자동활성화하지않습니다.')
+add('delete',ROOM+'/report-receiving','본인 웹의 현재 방 보고 수신 철회','VehicleReceiving',effects='웹수신만false로전환. 기기송신/별도Native수신은이경로로확대하거나변경하지않습니다.')

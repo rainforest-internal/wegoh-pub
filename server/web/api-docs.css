@@ -1,0 +1,5 @@
+/* User-requested developer Swagger UI. Product Pleos screens are unchanged. */
+body{margin:0;background:#fafafa;color:#3b4151;font-family:system-ui,sans-serif}.docs-header{display:flex;align-items:center;flex-wrap:wrap;gap:16px;padding:14px 24px;background:#1b1b1b;color:white}.docs-header a{color:white}.docs-header button{padding:8px 14px;cursor:pointer}.docs-header strong{margin-right:auto}#api-status{margin:12px 24px}#api-status:empty{display:none}.swagger-ui .scheme-container,.swagger-ui .authorization__btn{display:none}dialog{max-width:min(560px,calc(100vw - 32px));border:1px solid #aaa;border-radius:8px;padding:24px}dialog::backdrop{background:rgb(0 0 0 / .45)}dialog h2,dialog p{text-align:center}#api-confirm-route{overflow-wrap:anywhere}.dialog-actions{display:flex;gap:16px}.dialog-actions button{min-height:44px;flex:1;cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid #61affe;outline-offset:3px}
+
+/* Stock response tables retain all columns; narrow docs scroll inside the table region. */
+.swagger-ui .responses-inner{overflow-x:auto;}

@@ -1,0 +1,19 @@
+{
+  "syntheticOnly": true,
+  "wireSha256": "17c6a806079f3f0d97e5001967f87949a8e9b60df1adccfc63ab1575b7be13a4",
+  "request": {
+    "authorizationVersion": 1,
+    "operationId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "codeVerifier": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
+    "proofNonce": "Hx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQA",
+    "proof": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  "installationKeyId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "connectionId": "cccccccccccccccccccccccccccccccc",
+  "grantId": "dddddddddddddddddddddddddddddddd",
+  "challenge": "6oZqdX5MOLq_qBJ8vppAnT4fk6AP8UiP9zX8-Rev_9A",
+  "canonical": "{\"authorizationVersion\":1,\"codeVerifier\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8\",\"operationId\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"proof\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"proofNonce\":\"Hx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQA\"}",
+  "transcript": "WegoH native access v2\nCONNECTION_CLAIM\nhttps://enroll-wegoh.devforest.io\nPOST\n/v1/connections/cccccccccccccccccccccccccccccccc/claim\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ncccccccccccccccccccccccccccccccc\nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n6oZqdX5MOLq_qBJ8vppAnT4fk6AP8UiP9zX8-Rev_9A\nHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQA\n9e92c653bc593c6180ea686bd88167910fad398d518bfabbe6c610db57260c6e",
+  "recoveryCapability": "hmWW13nYLJdc5YmJgbF36q6PPG4ryjuX0q0A6mu08y0",
+  "revokeCapability": "DPa3jSXhKfbjnoJ4XCEO8kl2z74tq2ooo3FpRvLFqb0"
+}

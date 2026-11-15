@@ -1,0 +1,11 @@
+{
+  "component": "com.google.zxing:core",
+  "version": "3.5.4",
+  "purpose": "Public-URL QR generation/actual screenshot QR decoding; no UI framework",
+  "sourceUrl": "https://raw.githubusercontent.com/zxing/zxing/refs/tags/zxing-3.5.4/LICENSE",
+  "license": "Apache-2.0",
+  "licenseFile": "android/app/src/main/assets/licenses/zxing-LICENSE.txt",
+  "licenseSha256": "3f62881f0566227a24b12e5a754cc79f39aaa94883038e95c94812e1f50af42f",
+  "retrievedAt": "2026-10-29T23:54:58.024360+00:00",
+  "note": "Pinned upstream tagged license bundled with the product APK; SDK AAR itself has no ZXing dependency."
+}
